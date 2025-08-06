@@ -1,0 +1,11 @@
+# For making HTTP requests to the weather API
+requests==2.31.0
+
+# For converting text to speech
+gTTS==2.5.1
+
+# For recognizing speech from the microphone
+SpeechRecognition==3.10.3
+
+# The specific version to avoid the Windows MCI error
+playsound==1.2.2
