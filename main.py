@@ -54,6 +54,31 @@ def current_time():
    bolo(
         f"अभी {now.strftime('%I:%M')} {'सुबह' if now.hour < 12 else 'शाम'} के हैं।"
     )
+
+def search_wikipedia(query, language="hi"):
+    if not query:
+        bolo("आप विकिपीडिया पर क्या खोजना चाहते हैं?")
+        return
+
+    bolo(f"ठीक है, विकिपीडिया पर {query} खोज रहा हूँ...")
+
+    try:
+        wikipedia.set_lang(language)
+        full_summary = wikipedia.summary(query)
+        sentences = full_summary.split('।')
+        summary_to_speak = '।'.join(sentences[:2]) + '।'
+
+        bolo("विकिपीडिया के अनुसार,")
+        bolo(summary_to_speak)
+
+    except wikipedia.exceptions.DisambiguationError as e:
+        bolo(f"इस विषय पर एक से ज़्यादा परिणाम हैं। आप इनमें से क्या मतलब रखते हैं? {', '.join(e.options[:3])}")
+    except wikipedia.exceptions.PageError:
+        bolo(f"माफ़ कीजिए, मुझे '{query}' के लिए कोई विकिपीडिया पेज नहीं मिला।")
+    except Exception as e:
+        print(f"An unexpected Wikipedia error occurred: {e}")
+        bolo("माफ़ कीजिए, विकिपीडिया पर खोजते समय एक त्रुटि हुई।")
+
    
 def main():
    bolo("नमस्ते, मैं आपकी कैसे मदद कर सकता हूँ?", lang='hi')
@@ -67,8 +92,11 @@ def main():
         bolo("नमस्ते! क्या हाल है?")
       elif "बंद करो" in command or "अलविदा" in command:
         bolo("फिर मिलेंगे! अपना ध्यान रखना।")
+      elif "विकिपीडिया पर खोजो" in command:
+   
+        query = command.replace("विकिपीडिया पर खोजो", "").strip()
+        search_wikipedia(query, language="hi") 
         break
-        # You can add more elif conditions here for other commands
       elif command:
         bolo("मैं यह समझ नहीं पाया, कृपया फिर से कहें।")
 
@@ -77,4 +105,5 @@ def main():
 if __name__ == "__main__":
     main()
       
+
    
