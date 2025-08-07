@@ -9,3 +9,6 @@ SpeechRecognition==3.10.3
 
 # The specific version to avoid the Windows MCI error
 playsound==1.2.2
+
+# For searching articles on Wikipedia
+wikipedia==1.4.0
