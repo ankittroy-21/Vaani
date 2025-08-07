@@ -5,6 +5,7 @@ import time
 import datetime
 from playsound import playsound
 import requests
+import wikipedia
 
 def bolo(text,lang='hi'):
     try:
@@ -107,3 +108,4 @@ if __name__ == "__main__":
       
 
    
+
