@@ -12,3 +12,6 @@ playsound==1.2.2
 
 # For searching articles on Wikipedia
 wikipedia==1.4.0
+
+# For translating mixed-language text to Hindi
+deep-translator==1.11.4
