@@ -51,8 +51,18 @@ def listen_command():
         return ""
 
 def current_time():
-    now = datetime.datetime.now()
-    bolo(f"अभी {now.strftime('%I:%M')} {'सुबह' if now.hour < 12 else 'शाम'} के हैं।")
+   now=datetime.datetime.now()
+   if 4 <= now.hour < 12:
+    time_of_day = "सुबह"
+   elif 12 <= now.hour < 16:
+    time_of_day = "दोपहर"
+   elif 16 <= now.hour < 20:
+    time_of_day = "शाम"
+   else:
+    time_of_day = "रात"
+   bolo(
+        f"अभी {now.strftime('%I:%M')} {time_of_day} के हैं।"
+    )
 
 def get_weather(command):
     trigger_words = ["मौसम", "वेदर", "तापमान"]
@@ -201,3 +211,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
