@@ -6,6 +6,7 @@ import datetime
 from playsound import playsound
 import requests
 import wikipedia
+from deep_translator import GoogleTranslator
 
 WEATHER_API_KEY = "d8d27914ed689d6db6b7cfaaa81b03af"
 GNEWS_API_KEY = "176a4e62933fed171ad078e1c9f4476a"
@@ -36,10 +37,12 @@ def listen_command():
     with sr.Microphone() as source:
         r.pause_threshold = 1
         r.adjust_for_ambient_noise(source, duration=1)
+        print("कृपया बोलिए :")
         audio = r.listen(source)
     try:
         command = r.recognize_google(audio, language='hi-IN')
         print(f"आपने कहा: {command}")
+        bolo(f"आपने कहा: {command}")
         return command.lower()
     except sr.UnknownValueError:
         print("क्षमा करें, मैं आपकी बात समझ नहीं पाया।")
@@ -80,6 +83,7 @@ def get_weather(command):
 
     if location:
         city_to_check = location
+        print(f"{city_to_check} का मौसम बता रहा हूँ।")
         bolo(f"{city_to_check} का मौसम बता रहा हूँ।")
     else:
         bolo("आप किस शहर का मौसम जानना चाहते हैं?")
@@ -121,7 +125,7 @@ def get_weather(command):
         bolo("मौसम की जानकारी लेते समय एक अप्रत्याशित त्रुटि हुई।")
 
 def get_news(command):
-    junk_words = ["की", "के", "बारे", "में", "से", "ताज़ा", "बताओ", "सुनाओ", "खबरें", "समाचार"]
+    junk_words = ["की", "के", "बारे", "में", "से", "ताज़ा", "बताओ", "सुनाओ", "न्यूज़", "खबरें", "समाचार"]
     query = command
     for word in junk_words:
         query = query.replace(word, "").strip()
@@ -142,11 +146,19 @@ def get_news(command):
         articles = news_data.get("articles", [])
         
         if articles:
-            print("ये हैं आज की कुछ प्रमुख खबरें:")
-            bolo("ये हैं आज की कुछ प्रमुख खबरें:")
+            print(f"ये हैं {query} की कुछ प्रमुख खबरें:")
+            bolo(f"ये हैं {query} की कुछ प्रमुख खबरें:")
             for article in articles[:3]:
-                print(article['title'])
-                bolo(article['title'])
+               original_title = article['title']
+               try:
+                    translator = GoogleTranslator(source='auto', target='hi')
+                    translated_title = translator.translate(original_title)
+                    print(f"artcle about {query} : {translated_title}")
+               except Exception as e:
+                    print(f"Could not translate: {e}")
+                    translated_title = original_title
+                    print(f"article about {query}: {translated_title}")
+               bolo(translated_title)
         else:
             print("माफ़ कीजिए, मुझे इस विषय पर कोई ताज़ा खबर नहीं मिली।")
             bolo("माफ़ कीजिए, मुझे इस विषय पर कोई ताज़ा खबर नहीं मिली।")
@@ -184,7 +196,7 @@ def search_wikipedia(command):
 def main():
     print("नमस्ते, मैं आपकी कैसे मदद कर सकता हूँ?")
     bolo("नमस्ते, मैं आपकी कैसे मदद कर सकता हूँ?", lang='hi')
-    print("कृपया बोलिए :")
+    
     while True:
         command = listen_command()
         
@@ -211,4 +223,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
