@@ -1,86 +1,84 @@
+# Vaani – A Voice Assistant
 
-# Vaani – A Voice Assistant for the Illiterate
+Vaani is a smart, Python-based voice assistant designed for users who may face literacy challenges. It operates entirely through voice commands in Hindi, eliminating the need for reading or typing and making digital information accessible to everyone.
 
-Vaani is a simple and smart voice assistant specially designed for people who cannot read or write. It understands voice commands in local languages like Hindi, and replies using a natural, friendly voice. **With no need to type or read**, users can:
+---
+## ✨ Features
 
-- Ask for the time, date, and weather
+* **🗣️ Voice-Based Interaction:** Understands spoken Hindi commands and provides spoken responses.
+* **⏰ Time & Date:** Get the current time with natural greetings for morning, afternoon, evening, and night.
+* **🌦️ Dynamic Weather Forecasts:** Ask for the weather in any city (e.g., "Lucknow का मौसम बताओ").
+* **📰 Latest News Headlines:** Listen to top news headlines from India or ask about specific topics (e.g., "क्रिकेट की खबरें सुनाओ").
+* **📚 Wikipedia Search:** Get quick summaries from Wikipedia on any topic you ask about.
+* **🎵 Play Songs:** Ask Vaani to play any song, and it will open it for you on YouTube.
 
-- Get information from Wikipedia in simple language
+---
+## 🛠️ Built With
 
-- Make voice notes or reminders
+* **Python** 3.8+
+* **Libraries**:
+    * `SpeechRecognition` for voice-to-text.
+    * `gTTS` for text-to-speech.
+    * `playsound` for audio playback.
+    * `requests` for API communication.
+    * `wikipedia` for encyclopedia lookups.
+    * `deep-translator` for real-time translation.
+* **APIs**:
+    * OpenWeatherMap API
+    * GNews API
 
-- Get help with directions or nearby places
+---
+## 🚀 Getting Started
 
-- Listen to news or educational content
+Follow these instructions to get a copy of the project up and running on your local machine.
 
-- Even connect with friends or family using voice prompts
+### Prerequisites
 
-## API Reference
+* Python 3.8 or newer installed on your system.
+* A working microphone connected to your computer.
+* A stable internet connection.
 
-#### Get all items
+### Installation
 
-```http
-  GET /api/items
-```
+1.  **Clone the project**
+    ```bash
+    git clone https://github.com/groupnumber-9/Vaani
+    ```
 
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `api_key` | `string` | **Required**. Your API key |
+2.  **Go to the project directory**
+    ```bash
+    cd main
+    ```
 
-#### Get item
+3.  **Set up your API Keys**
+    * In the project folder, create a new file named `config.py`.
+    * You will need to get free API keys from the services below and add them to this file.
+        * **OpenWeatherMap API Key:** Get it from [OpenWeatherMap](https://openweathermap.org/appid)
+        * **GNews API Key:** Get it from [GNews](https://gnews.io/)
+    * Your `config.py` file should look like this:
+        ```python
+        # config.py
+        WEATHER_API_KEY = "YOUR_SECRET_WEATHER_KEY_HERE"
+        GNEWS_API_KEY = "YOUR_SECRET_GNEWS_KEY_HERE"
+        ```
 
-```http
-  GET /api/items/${id}
-```
+4.  **Install dependencies**
+    * The `requirements.txt` file contains all the necessary Python libraries. Install them with one command:
+        ```bash
+        pip install -r requirements.txt
+        ```
 
-| Parameter | Type     | Description                       |
-| :-------- | :------- | :-------------------------------- |
-| `id`      | `string` | **Required**. Id of item to fetch |
+---
+## Usage
 
-#### add(num1, num2)
-
-Takes two numbers and returns the sum.
-
-
-## Installation
-
-Install my-project with npm
+To start the voice assistant, run the `main.py` script from your terminal:
 
 ```bash
-  npm install my-project
-  cd my-project
+python main.py
 ```
-    
+
 ## 🚀 About Us
 We are group of Devs which are focused to develop new things. Also open for new opportunities From 
 
 
 ![Logo](https://bbdu.ac.in/wp-content/uploads/2018/10/bbd-logo.png)
-
-
-## Run Locally
-
-Clone the project
-
-```bash
-  git clone https://link-to-project
-```
-
-Go to the project directory
-
-```bash
-  cd my-project
-```
-
-Install dependencies
-
-```bash
-  npm install
-```
-
-Start the server
-
-```bash
-  npm run start
-```
-
