@@ -7,6 +7,7 @@ from playsound import playsound
 import requests
 import wikipedia
 from deep_translator import GoogleTranslator
+import timefn
 
 WEATHER_API_KEY = "d8d27914ed689d6db6b7cfaaa81b03af"
 GNEWS_API_KEY = "176a4e62933fed171ad078e1c9f4476a"
@@ -206,7 +207,7 @@ def main():
         if "बंद करो" in command or "अलविदा" in command:
             bolo("फिर मिलेंगे! अपना ध्यान रखना।")
             break
-        elif "समय" in command or "टाइम" in command:
+        elif any(phrase in command for phrase in timefn.timedekh):
             current_time()
         elif "मौसम" in command or "वेदर" in command:
             get_weather(command)
