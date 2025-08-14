@@ -1,7 +1,7 @@
 import time
 import Config
 from voice_tool import bolo, listen_command
-from Timefn import current_time
+from Time import current_time
 from Weather import get_weather
 from News import get_news
 from Wikipedia import search_wikipedia
