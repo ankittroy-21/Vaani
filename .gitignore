@@ -24,3 +24,5 @@ __pycache__/
 # Ignore configuration files from popular code editors
 [cite_start].vscode/ [cite: 2]
 [cite_start].idea/ [cite: 2]
+Config.py
+temp_audio.mp3
