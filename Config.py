@@ -1,9 +1,7 @@
-#OpenWeatherMap API Key: Get it from https://openweathermap.org/appid
-WEATHER_API_KEY = "YOUR_SECRET_WEATHER_KEY_HERE"
-#GNews API Key: Get it from https://gnews.io/
-GNEWS_API_KEY = "YOUR_SECRET_GNEWS_KEY_HERE"
+WEATHER_API_KEY = "d8d27914ed689d6db6b7cfaaa81b03af"
+GNEWS_API_KEY = "176a4e62933fed171ad078e1c9f4476a"
 
-#Junk Words for time commands
+#Time Commands
 timedekh = [
     "समय बताओ", "अभी टाइम क्या है", "कितना बजा है", "समय क्या हुआ है", "वक्त बता दो", "क्या टाइम हुआ है", 
     "अभी कितने बजे हैं", "समय की जानकारी दो", "मुझे समय बताइए", "बता दो कितने बजे हैं", 
@@ -94,4 +92,79 @@ timedekh = [
     "टाइम देख के बता", "टाइम का भईल बा?", "टाइम का भवा?", "टेम बता", "टेम का हुआ है?", "जरा टेम देखना", 
     "क्या टाइम हुआ बे?", "बताइयो क्या टाइम हुआ", "टेम देखो टेम", "टाइम हो कितना रहा है?", "ए भाई, टाइम बता दे", 
     "यार टाइम बता दे", "मोबाइल में टाइम देखो"
+]
+
+
+# --- Weather Commands ---
+
+# General trigger words to identify a weather-related query
+weather_trigger = [
+    "मौसम", "वेदर", "तापमान", "हवा", "नमी", "गर्मी", "सर्दी", "बारिश"
+]
+
+# Words to ignore when trying to identify the city name
+weather_junk = [
+    # --- Postpositions / Conjunctions ---
+    "का", "के", "की", "में", "पर", "से", "तो", "और",
+    
+    # --- Common Filler Words ---
+    "ज़रा", "ना", "भाई", "यार", "दोस्त", "जी",
+    
+    # --- Time-Related Words ---
+    "आज", "कल", "परसों", "अभी", "इस", "समय",
+    
+    # --- Location-Related Words ---
+    "शहर", "इलाके", "क्षेत्र", "वहाँ", "यहां",
+    
+    # --- Question Words ---
+    "कैसा", "कैसी", "कितना", "कितनी", "क्या", "कब",
+    
+    # --- Verb Forms and Commands ---
+    "है", "होगी", "होगा", "हूँ", "रहेगा", "रहेगी",
+    "बताओ", "बताइए", "बताएं", "दो", "दीजिए",
+    
+    # --- Nouns Related to the Query ---
+    "जानकारी", "विवरण", "रिपोर्ट", "हाल", "पूर्वानुमान",
+    
+    # --- Politeness ---
+    "कृपया", "प्लीज",
+    
+    # --- Miscellaneous ---
+    "मुझे", "मेरे"
+]
+
+# Phrases to trigger a full, detailed weather report
+weather_full_report = [
+    "पूरी जानकारी", "पूरा विवरण", "सब कुछ बताओ", "डिटेल में बताओ", "विस्तार से बताओ", "पूरी रिपोर्ट दो"
+]
+
+# Phrases to trigger a temperature and humidity report
+weather_temperature = [
+    "तापमान", "कितना गर्म है", "कितनी गर्मी है", "नमी कितनी है", "उमस", "डिग्री", "सेल्सियस", "कितनी ठंड है", "सर्दी कैसी है"
+]
+
+# Phrases to trigger a wind speed report
+weather_wind = [
+    "हवा की गति", "हवा कैसी है", "हवा की रफ्तार", "कितनी तेज हवा है", "हवा चल रही है"
+]
+
+# --- Rain Forecast Commands ---
+
+# Words that trigger the rain forecast function
+rain_trigger = [
+    "बारिश", "बरसात", "पानी बरसेगा", "पानी गिरेगा", "मेंह"
+]
+
+# Phrases specifically about today's rain
+rain_today = [
+    "आज बारिश", "आज पानी बरसेगा", "आज बरसात"
+]
+
+# Phrases specifically about tomorrow's rain
+rain_tomorrow = [
+    "कल बारिश", "कल पानी बरसेगा", "आने वाले कल"
+]
+
+rain_most_significant = [
+    "सबसे ज्यादा बारिश", "सबसे भारी बारिश", "मुख्य दिन बताओ बारिश का", "किस दिन ज्यादा पानी गिरेगा"
 ]
