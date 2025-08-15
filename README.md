@@ -42,12 +42,12 @@ Follow these instructions to get a copy of the project up and running on your lo
 
 1.  **Clone the project**
     ```bash
-    git clone https://github.com/groupnumber-9/Vaani
+    git clone https://github.com/groupnumber-9/Vaani.git
     ```
 
 2.  **Go to the project directory**
     ```bash
-    cd main
+    cd Vaani
     ```
 
 3.  **Set up your API Keys**
@@ -57,7 +57,6 @@ Follow these instructions to get a copy of the project up and running on your lo
         * **GNews API Key:** Get it from [GNews](https://gnews.io/)
     * Your `config.py` file should look like this:
         ```python
-        # config.py
         WEATHER_API_KEY = "YOUR_SECRET_WEATHER_KEY_HERE"
         GNEWS_API_KEY = "YOUR_SECRET_GNEWS_KEY_HERE"
         ```
@@ -66,10 +65,9 @@ Follow these instructions to get a copy of the project up and running on your lo
     * The `requirements.txt` file contains all the necessary Python libraries. Install them with one command:
         ```bash
         pip install -r requirements.txt
-        ```
 
 ---
-## Usage
+## Run the Script
 
 To start the voice assistant, run the `main.py` script from your terminal:
 
