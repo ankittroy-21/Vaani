@@ -75,6 +75,86 @@ To start the voice assistant, run the `main.py` script from your terminal:
 python main.py
 ```
 
+
+# 🗣️ Voice Command Examples 🗣️
+
+Welcome! This guide showcases a variety of voice commands you can use with your assistant. Explore the examples below to get started!
+
+---
+
+### 🕒 Telling Time
+
+
+  <p align="center">
+  <img src="https://envs.sh/2mN.png" alt="Clock icon" width="60" height="60" />
+</p>
+
+
+Need to know the time? Just ask!
+
+* `"समय बताओ"` 🕰️
+* `"अभी टाइम क्या है"` ⏰
+
+---
+
+### 🌦️ Weather & Rain Forecasts
+
+<p align="center">
+  <img src="https://envs.sh/2mX.png" alt="Weather Icon" width="60"/>
+</p>
+
+Get live weather updates for any location.
+
+* **Simple Report:** `"लखनऊ का मौसम कैसा है"` 🌤️
+* **Temperature Only:** `"दिल्ली का तापमान बताओ"` 🌡️
+* **Wind Speed:** `"मुंबई में हवा की गति क्या है"` 💨
+* **Detailed Report:** `"आगरा के मौसम की पूरी जानकारी दो"` 📝
+* **Rain Check:** `"क्या आज पुणे में बारिश होगी"` ☔
+
+---
+
+### 📰 News Headlines
+
+<p align="center">
+  <img src="https://envs.sh/2m6.png" alt="Newspaper Icon" width="60"/>
+</p>
+
+Stay informed with the latest breaking news.
+
+* **Top Headlines:** `"आज की ताज़ा खबरें सुनाओ"` 🗞️
+* **Specific Topics:** `"क्रिकेट की खबरें बताओ"` 🏏
+
+---
+
+### 🌐 Wikipedia Search
+
+<p align="center">
+  <img src="https://envs.sh/2ME.png" alt="Wikipedia Logo" width="60"/>
+</p>
+
+Look up information on millions of topics.
+
+* `"विकिपीडिया पर महात्मा गांधी के बारे में खोजो"` 📜
+* `"विकिपीडिया पर भारत के बारे में बताओ"` 🌏
+
+---
+
+### 👋 General Conversation
+
+<p align="center">
+  <img src="https://envs.sh/2MQ.png" alt="Conversation Icon" width="60"/>
+</p>
+
+Essential commands for interacting with your assistant.
+
+* **Greeting:** `"नमस्ते"` 🙏
+* **Stopping:** `"बंद करो"` or `"अलविदा"` 🛑
+
+---
+✨ **Happy commanding!** ✨
+
+
+
 ## 🚀 About Us
 We are group of Devs which are focused to develop new things. Also open for new opportunities From 
 
