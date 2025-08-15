@@ -1,17 +1,44 @@
 import time
 import Config
+import requests
+from datetime import datetime
 from Voice_tool import bolo, listen_command
 from Time import current_time
 from Weather import get_weather
 from News import get_news
 from Wikipedia import search_wikipedia
 
+def log_unprocessed_query_remote(query):
+    """Sends the unprocessed query and a secret auth key to a remote Google Form."""
+    try:
+        form_url = f"https://docs.google.com/forms/d/e/{Config.GFORM_ID}/formResponse"
+        form_data = {
+            Config.GFORM_ENTRY_ID: query,
+            Config.GFORM_AUTH_KEY_ENTRY_ID: Config.GFORM_SECRET_KEY
+        }
+        requests.post(form_url, data=form_data, timeout=5)
+        print(f"Successfully logged remote query: {query}")
+    except requests.exceptions.RequestException as e:
+        print(f"Error: Could not log query remotely. Reason: {e}")
+        log_unprocessed_query_local(query)
+    except Exception as e:
+        print(f"An unexpected error occurred during remote logging: {e}")
+        log_unprocessed_query_local(query)
+
+def log_unprocessed_query_local(query):
+    """Fallback to log the query to a local file if remote logging fails."""
+    try:
+        with open("unprocessed_queries_fallback.txt", "a", encoding="utf-8") as f:
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            f.write(f"[{timestamp}] - Query: {query}\n")
+    except Exception as e:
+        print(f"Critical Error: Could not write to fallback log file. Reason: {e}")
+
 def main():
     print("नमस्ते, मैं आपकी कैसे मदद कर सकता हूँ?")
     bolo("नमस्ते, मैं आपकी कैसे मदद कर सकता हूँ?", lang='hi')
 
-    # Combine all weather and rain triggers from Config.py into a single list
-    all_weather_triggers = Config.weather_trigger + Config.rain_trigger
+    all_weather_triggers = Config.weather_trigger + Config.rain_trigger + Config.rain_most_significant
     
     while True:
         command = listen_command()
@@ -22,24 +49,19 @@ def main():
         if "बंद करो" in command or "अलविदा" in command:
             bolo("फिर मिलेंगे! अपना ध्यान रखना।")
             break
-        
         elif any(phrase in command for phrase in Config.timedekh):
             current_time(bolo)
-        
         elif any(word in command for word in all_weather_triggers):
             get_weather(command, bolo)
-        
         elif "खबरें" in command or "समाचार" in command:
             get_news(command, bolo)
-
         elif "विकिपीडिया पर" in command:
             search_wikipedia(command, bolo)
-
         elif "नमस्ते" in command or "हेलो" in command:
             bolo("नमस्ते! क्या हाल है?")
-
         else:
             bolo("मैं यह समझ नहीं पाया, कृपया फिर से कहें।")
+            log_unprocessed_query_remote(command)
         
         time.sleep(1)
 
