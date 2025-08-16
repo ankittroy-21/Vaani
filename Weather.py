@@ -4,11 +4,15 @@ from datetime import date, timedelta, datetime
 
 def _parse_location(command):
     """A dedicated helper function to reliably parse the city name from a command."""
-    temp_command = f" {command} "
-    all_words_to_remove = Config.weather_trigger + Config.rain_trigger + Config.weather_junk + Config.rain_most_significant
-    for word in all_words_to_remove:
-        temp_command = temp_command.replace(f" {word} ", " ")
-    location = temp_command.strip()
+    all_words_to_remove = set(
+        Config.weather_trigger +
+        Config.rain_trigger +
+        Config.weather_junk +
+        Config.rain_most_significant
+    )
+    command_words = command.split()
+    location_words = [word for word in command_words if word not in all_words_to_remove]
+    location = " ".join(location_words)
     return location
 
 def _format_date_hindi(date_str):
@@ -114,8 +118,10 @@ def get_rain_forecast(command, city, bolo_func):
         print(f"Rain forecast error: {e}")
         bolo_func("बारिश का पूर्वानुमान लेते समय एक अप्रत्याशित त्रुटि हुई।")
 
+# Weather.py में
+
 def get_general_weather(command, city_to_check, bolo_func):
-    """Provides general weather details. This function is not changed."""
+    """Provides general weather details."""
     try:
         url = (f"http://api.openweathermap.org/data/2.5/weather?"
                f"q={city_to_check}&appid={Config.WEATHER_API_KEY}&units=metric&lang=hi")
@@ -132,17 +138,18 @@ def get_general_weather(command, city_to_check, bolo_func):
             wind_speed_kph = wind_speed_ms * 3.6
 
             if any(phrase in command for phrase in Config.weather_full_report):
-                response_string = (f"तापमान {temp:.1f} डिग्री सेल्सियस है, नमी {humidity} प्रतिशत है, "
+                response_string = (f"{city_to_check} में, तापमान {temp:.1f} डिग्री सेल्सियस है, नमी {humidity} प्रतिशत है, "
                                    f"हवा की गति {wind_speed_kph:.1f} किलोमीटर प्रति घंटा है और "
                                    f"आसमान में {description} की उम्मीद है।")
             elif any(phrase in command for phrase in Config.weather_temperature):
-                response_string = (f"अभी का तापमान {temp:.1f} डिग्री सेल्सियस है "
+                response_string = (f"{city_to_check} में अभी का तापमान {temp:.1f} डिग्री सेल्सियस है "
                                    f"और हवा में नमी {humidity} प्रतिशत है।")
             elif any(phrase in command for phrase in Config.weather_wind):
-                response_string = f"हवा की गति {wind_speed_kph:.1f} किलोमीटर प्रति घंटा है।"
+                response_string = f"{city_to_check} में हवा की गति {wind_speed_kph:.1f} किलोमीटर प्रति घंटा है।"
             else:
                 response_string = (f"{city_to_check} में आज आसमान में {description} की उम्मीद है "
                                    f"और तापमान लगभग {temp:.1f} डिग्री सेल्सियस है।")
+            print(response_string)
             bolo_func(response_string)
         else:
             bolo_func("माफ़ कीजिए, मैं मौसम का विवरण प्राप्त नहीं कर सका।")
