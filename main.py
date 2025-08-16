@@ -35,17 +35,6 @@ def log_unprocessed_query_local(query):
     except Exception as e:
         print(f"Critical Error: Could not write to fallback log file. Reason: {e}")
 
-def handle_positive_feedback(command):
-    """Process positive feedback with regional variations."""
-    # Check for exact matches first
-    if command.lower() in Config.POSITIVE_FEEDBACK_SET:
-        return True
-    
-    # Check for partial matches (feedback within longer sentences)
-    for feedback in Config.POSITIVE_FEEDBACK_SET:
-        if feedback in command:
-            return True
-    return False
 
 def main():
     print("नमस्ते, मैं आपकी कैसे मदद कर सकता हूँ?")
@@ -59,23 +48,9 @@ def main():
         if not command:
             continue
 
-        # 1. First check for exit commands
         if "बंद करो" in command or "अलविदा" in command:
             bolo("फिर मिलेंगे! अपना ध्यान रखना।")
             break
-            
-        # 2. Handle positive feedback (new block)
-        if handle_positive_feedback(command):
-            responses = [
-                "धन्यवाद! मैं और कैसे मदद कर सकता हूँ?",
-                "आपकी प्रशंसा मुझे प्रेरित करती है!",
-                "मैं और बेहतर सेवा देने का प्रयास करूँगा",
-                "शुक्रिया! क्या मैं आपके लिए और कुछ कर सकता हूँ?"
-            ]
-            bolo(random.choice(responses))
-            continue
-            
-        # 3. Existing command processing
         elif any(phrase in command for phrase in Config.timedekh):
             current_time(bolo)
         elif any(word in command for word in all_weather_triggers):
@@ -93,6 +68,5 @@ def main():
         time.sleep(1)
 
 if __name__ == "__main__":
-    # Initialize feedback set for faster lookups
-    Config.POSITIVE_FEEDBACK_SET = set(Config.POSITIVE_FEEDBACK)
     main()
+
