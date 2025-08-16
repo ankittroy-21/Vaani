@@ -1,4 +1,4 @@
-# Vaani – A Voice Assistant
+# 🤖 Vaani – A Voice Assistant 💬
 
 Vaani is a smart, Python-based voice assistant designed for users who may face literacy challenges. It operates entirely through voice commands in Hindi, eliminating the need for reading or typing and making digital information accessible to everyone.
 
@@ -62,11 +62,18 @@ Follow these instructions to get a copy of the project up and running on your lo
         ```
 
 4.  **Install dependencies**
-    * The `requirements.txt` file contains all the necessary Python libraries. Install them with one command:
+    * The `install.bat` file contains all the necessary Python libraries. Install them with one command:
         ```bash
-        pip install -r requirements.txt
+        install.bat
+        ```
+<br>
+<br>
 
----
+  ## 🚀Run the  ```install.bat``` file, and you're all set. No other steps are needed!
+
+<br>
+<br>
+
 ## Run the Script
 
 To start the voice assistant, run the `main.py` script from your terminal:
