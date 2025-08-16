@@ -1,9 +1,11 @@
 import time
 import Config
 import requests
+import re
+import random
 from datetime import datetime
 from Voice_tool import bolo, listen_command
-from Time import current_time
+from Time import current_time, get_date_of_day_in_week, get_day_summary
 from Weather import get_weather
 from News import get_news
 from Wikipedia import search_wikipedia
@@ -35,8 +37,9 @@ def log_unprocessed_query_local(query):
         print(f"Critical Error: Could not write to fallback log file. Reason: {e}")
 
 def main():
-    print("नमस्ते, मैं आपकी कैसे मदद कर सकता हूँ?")
-    bolo("नमस्ते, मैं आपकी कैसे मदद कर सकता हूँ?", lang='hi')
+    startup_message = random.choice(Config.startup_responses)
+    print(startup_message)
+    bolo(startup_message, lang='hi')
 
     all_weather_triggers = Config.weather_trigger + Config.rain_trigger + Config.rain_most_significant
     
@@ -45,20 +48,31 @@ def main():
         
         if not command:
             continue
-
-        if "बंद करो" in command or "अलविदा" in command:
-            bolo("फिर मिलेंगे! अपना ध्यान रखना।")
+        if any(phrase in command for phrase in Config.goodbye_triggers):
+            bolo(random.choice(Config.goodbye_responses))
             break
+
         elif any(phrase in command for phrase in Config.timedekh):
             current_time(bolo)
+        
+        elif any(phrase in command for phrase in Config.date_trigger):
+            get_date_of_day_in_week(command, bolo)
+
         elif any(word in command for word in all_weather_triggers):
             get_weather(command, bolo)
-        elif "खबरें" in command or "समाचार" in command:
+
+        elif any(phrase in command for phrase in Config.news_trigger):
             get_news(command, bolo)
-        elif "विकिपीडिया पर" in command:
+
+        elif any(phrase in command for phrase in Config.wikipedia_trigger):
             search_wikipedia(command, bolo)
-        elif "नमस्ते" in command or "हेलो" in command:
-            bolo("नमस्ते! क्या हाल है?")
+
+        elif any(phrase in command for phrase in Config.greeting_triggers):
+            bolo(random.choice(Config.greeting_responses))
+        
+        elif any(phrase in command for phrase in Config.historical_date_trigger):
+            get_day_summary(command, bolo)
+
         else:
             bolo("मैं यह समझ नहीं पाया, कृपया फिर से कहें।")
             log_unprocessed_query_remote(command)
