@@ -1,22 +1,23 @@
 import requests
 import Config
 from deep_translator import GoogleTranslator
+import random
 
 def get_news(command, bolo_func):
-    """Fetches and translates news headlines."""
-    junk_words = ["की", "के", "बारे", "में", "से", "ताज़ा", "बताओ", "सुनाओ", "न्यूज़", "खबरें", "समाचार"]
-    query = command
-    for word in junk_words:
-        query = query.replace(word, "").strip()
+    words_to_remove = set(Config.news_junk + Config.news_trigger)
+    command_words = command.split()
+    query_words = [word for word in command_words if word not in words_to_remove]
+    query = " ".join(query_words)
         
     try:
         if query:
-            print(f"ठीक है, {query} के बारे में GNews से खबरें खोज रहा हूँ।")
-            bolo_func(f"ठीक है, {query} के बारे में GNews से खबरें खोज रहा हूँ।")
+            search_message = random.choice(Config.news_search_responses).format(query)
+            print(search_message)
             url = (f"https://gnews.io/api/v4/search?q={query}&lang=hi&country=in&apikey={Config.GNEWS_API_KEY}")
         else:
-            print("ठीक है, भारत से आज की ताज़ा खबरें सुना रहा हूँ।")
-            bolo_func("ठीक है, भारत से आज की ताज़ा खबरें सुना रहा हूँ।")
+            search_message = random.choice(Config.news_top_headlines_responses)
+            print(search_message)
+            bolo_func(search_message)
             url = (f"https://gnews.io/api/v4/top-headlines?category=general&lang=hi&country=in&apikey={Config.GNEWS_API_KEY}")
 
         response = requests.get(url)
@@ -25,22 +26,24 @@ def get_news(command, bolo_func):
         articles = news_data.get("articles", [])
         
         if articles:
-            print(f"ये हैं {query} की कुछ प्रमुख खबरें:")
-            bolo_func(f"ये हैं {query} की कुछ प्रमुख खबरें:")
+            display_topic = query if query else "आज" 
+            summary_intro = random.choice(Config.news_summary_responses).format(display_topic)
+            print(summary_intro)
+            bolo_func(summary_intro)
+            
             for article in articles[:3]:
                original_title = article['title']
                try:
                     translator = GoogleTranslator(source='auto', target='hi')
                     translated_title = translator.translate(original_title)
-                    print(f"artcle about {query} : {translated_title}")
+                    print(f"Headline: {translated_title}")
                except Exception as e:
                     print(f"Could not translate: {e}")
                     translated_title = original_title
-                    print(f"article about {query}: {translated_title}")
+                    print(f"Headline: {translated_title}")
                bolo_func(translated_title)
         else:
-            print("माफ़ कीजिए, मुझे इस विषय पर कोई ताज़ा खबर नहीं मिली।")
-            bolo_func("माफ़ कीजिए, मुझे इस विषय पर कोई ताज़ा खबर नहीं मिली।")
+            bolo_func(f"माफ़ कीजिए, मुझे '{query}' विषय पर कोई ताज़ा खबर नहीं मिली।")
 
     except requests.exceptions.HTTPError as e:
         print(f"HTTP Error: {e.response.json()}")
@@ -48,4 +51,3 @@ def get_news(command, bolo_func):
     except Exception as e:
         print(f"An unexpected news error occurred: {e}")
         bolo_func("खबरें प्राप्त करते समय एक अप्रत्याशित त्रुटि हुई।")
-  
