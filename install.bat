@@ -13,24 +13,7 @@ echo.
 echo    Welcome! This script will automatically install all the necessary
 echo    components for Vaani.
 echo.
-echo    Press any key to begin the installation...
 pause
-
-echo    ==================================================================
-echo                 [STEP 0] : Cleaning Old Installations
-echo    ==================================================================
-echo.
-echo    INFO: Removing any previously installed versions of libraries.
-echo.
-timeout /t 3 /nobreak >nul
-
-pip uninstall -y requests gTTS SpeechRecognition pygame wikipedia deep-translator PyAudio
-
-echo.
-echo    > SUCCESS: Old libraries removed!
-echo.
-timeout /t 3 /nobreak >nul
-cls
 
 echo    ==================================================================
 echo                 [STEP 1 of 2] : Installing Core Microphone Driver
@@ -40,7 +23,6 @@ echo    INFO: Installing 'PyAudio', the library that lets the assistant
 echo          access your microphone.
 echo.
 echo    > ACTION: Installing from a pre-built package to avoid errors.
-echo    Press any key to begin the installation...
 pause
 echo.
 pip install https://download.lfd.uci.edu/pythonlibs/archived/PyAudio-0.2.14-cp312-cp312-win_amd64.whl
