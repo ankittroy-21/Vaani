@@ -1,29 +1,36 @@
-import speech_recognition as sr
-from gtts import gTTS
 import os
-from playsound import playsound
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "1"
+import speech_recognition as sr
+import os
 import time
+from gtts import gTTS
+from pygame import mixer
 
 def bolo(text, lang='hi'):
+    audio_file = "temp_audio.mp3" 
     try:
         tts = gTTS(text=text, lang=lang)
-        audio_file = "temp_audio.mp3"
         tts.save(audio_file)
-        playsound(audio_file)
+
+        # Use pygame mixer to play the audio
+        mixer.init()
+        mixer.music.load(audio_file)
+        mixer.music.play()
+
+        # Wait for the audio to finish playing before continuing
+        while mixer.music.get_busy():
+            time.sleep(0.1)
+        
+        
+        mixer.music.unload() 
+        mixer.quit()         
         os.remove(audio_file)
-    except ImportError:
-        print("The 'playsound' library is not installed. Please run: 'pip install playsound'")
-        print("As a fallback, using os.system. This might not work on all systems.")
-        tts = gTTS(text=text, lang=lang)
-        audio_file = "temp_audio.mp3"
-        tts.save(audio_file)
-        if os.name == 'nt':
-            os.system(f"start {audio_file}")
-        else:
-            os.system(f"afplay {audio_file}")
-        time.sleep(max(2, len(text) / 15))
+
     except Exception as e:
         print(f"Error in bolo function: {e}")
+        # Fallback in case of an error
+        if os.path.exists(audio_file):
+            os.remove(audio_file)
 
 def listen_command():
     r = sr.Recognizer()
