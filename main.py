@@ -36,10 +36,6 @@ def log_unprocessed_query_local(query):
     except Exception as e:
         print(f"Critical Error: Could not write to fallback log file. Reason: {e}")
 
-<<<<<<< HEAD
-=======
-
->>>>>>> d630004280b5986c089e209d0b9c551ca8ff73bb
 def main():
     startup_message = random.choice(Config.startup_responses)
     print(startup_message)
@@ -52,17 +48,10 @@ def main():
         
         if not command:
             continue
-<<<<<<< HEAD
         if any(phrase in command for phrase in Config.goodbye_triggers):
             bolo(random.choice(Config.goodbye_responses))
             break
 
-=======
-
-        if "बंद करो" in command or "अलविदा" in command:
-            bolo("फिर मिलेंगे! अपना ध्यान रखना।")
-            break
->>>>>>> d630004280b5986c089e209d0b9c551ca8ff73bb
         elif any(phrase in command for phrase in Config.timedekh):
             current_time(bolo)
         
@@ -91,9 +80,4 @@ def main():
         time.sleep(1)
 
 if __name__ == "__main__":
-<<<<<<< HEAD
     main()
-=======
-    main()
-
->>>>>>> d630004280b5986c089e209d0b9c551ca8ff73bb
