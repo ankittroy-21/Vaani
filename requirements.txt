@@ -1,21 +1,7 @@
-# For making HTTP requests to the weather API
 requests==2.31.0
-
-# For converting text to speech
 gTTS==2.5.1
-
-# For recognizing speech from the microphone
 SpeechRecognition==3.10.3
-
-# The specific version to avoid the Windows MCI error
 pygame==2.5.2
-
-# For searching articles on Wikipedia
 wikipedia==1.4.0
-
-# For translating mixed-language text to Hindi
 deep-translator==1.11.4
-
-# For microphone input (pip will fetch the right wheel for your Python version)
-PyAudio==0.2.14
-
+googlesearch-python==1.3.0
