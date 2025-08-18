@@ -74,7 +74,7 @@ def main():
             get_day_summary(command, bolo)
 
         else:
-            bolo("मैं यह समझ नहीं पाया, कृपया फिर से कहें।")
+            bolo("मैं यह समझ नहीं पाई, कृपया फिर से कहें।")
             log_unprocessed_query_remote(command)
         
         time.sleep(1)
