@@ -1,16 +1,4 @@
-# --- Python Cache ---
-# Ignore the cache directory that Python creates
 __pycache__/
 *.pyc
-
-# --- Virtual Environments ---
-# Ignore common virtual environment folders
-[cite_start]venv/ [cite: 2]
-[cite_start].venv/ [cite: 2]
-[cite_start]env/ [cite: 2]
-[cite_start].env [cite: 2]
-
-# --- IDE/Editor Specific ---
-# Ignore configuration files from popular code editors
-[cite_start].vscode/ [cite: 2]
-[cite_start].idea/ [cite: 2]
+temp_audio.mp3
+.env
