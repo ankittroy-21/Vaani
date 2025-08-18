@@ -1,15 +1,12 @@
 import requests
 import Config
+import os
 from deep_translator import GoogleTranslator
 import random
 
 articles_cache = []
 
 def get_news(command, bolo_func):
-    """
-    Fetches up to 5 news headlines, presents them as a numbered list,
-    and returns them to be cached for further explanation.
-    """
     words_to_remove = set(Config.news_junk + Config.news_trigger)
     command_words = command.split()
     query_words = [word for word in command_words if word not in words_to_remove]
@@ -19,12 +16,12 @@ def get_news(command, bolo_func):
         if query:
             search_message = random.choice(Config.news_search_responses).format(query)
             print(search_message)
-            url = f"https://gnews.io/api/v4/search?q={query}&lang=hi&country=in&max=5&apikey={Config.GNEWS_API_KEY}"
+            url = f"https://gnews.io/api/v4/search?q={query}&lang=hi&country=in&max=5&apikey={os.getenv('GNEWS_API_KEY')}"
         else:
             search_message = random.choice(Config.news_top_headlines_responses)
             print(search_message)
             bolo_func(search_message)
-            url = f"https://gnews.io/api/v4/top-headlines?category=general&lang=hi&country=in&max=5&apikey={Config.GNEWS_API_KEY}"
+            url = f"https://gnews.io/api/v4/top-headlines?category=general&lang=hi&country=in&max=5&apikey={os.getenv('GNEWS_API_KEY')}"
 
         response = requests.get(url)
         response.raise_for_status()
@@ -55,9 +52,11 @@ def get_news(command, bolo_func):
                print(announcement)
                bolo_func(announcement)
             
+            print("आप किस खबर के बारे में विस्तार से जानना चाहेंगे? कृपया 1 से 5 के बीच का नंबर बताएं, या 'बंद करो' कहें।")
             bolo_func("आप किस खबर के बारे में विस्तार से जानना चाहेंगे? कृपया 1 से 5 के बीच का नंबर बताएं, या 'बंद करो' कहें।")
             return True
         else:
+            print(f"माफ़ कीजिए, मुझे '{query}' विषय पर कोई ताज़ा खबर नहीं मिली।")
             bolo_func(f"माफ़ कीजिए, मुझे '{query}' विषय पर कोई ताज़ा खबर नहीं मिली।")
             return False
 
@@ -86,8 +85,8 @@ def explain_news_detail(number, bolo_func):
             print(f"Could not translate detail: {e}")
             translated_detail = detail
 
+        print(f"ठीक है, सुनिए: {translated_detail}")
         bolo_func(f"ठीक है, सुनिए: {translated_detail}")
-        bolo_func("क्या आप कोई और खबर विस्तार से सुनना चाहेंगे?")
     
     except IndexError:
         bolo_func("माफ़ कीजिए, यह एक अमान्य नंबर है। कृपया फिर से प्रयास करें।")
@@ -118,8 +117,8 @@ def process_news_selection(command, bolo_func):
     "तिन": 3, "त्रि": 3, "त्रिक": 3, "तेइसरा": 3,
     "थ्री": 3, "थर्ड": 3, "थरड": 3,
 
-    "चार": 4, "४": 4, "4": 4,
-    "चौथा": 4, "चौथी": 4,"नंबर चार": 4,
+    "चार": 4, "४": 4, "4": 4,"चौथ":4,
+    "चौथा": 4, "चौथी": 4,"नंबर चार": 4,"कर":4,
     "चारी": 4, "चौती": 4, "चौति": 4, "चौर": 4, "चौह": 4,
     "फोर": 4, "फोर्थ": 4, "फोरथ": 4, "क्वाड": 4,
 
@@ -136,6 +135,7 @@ def process_news_selection(command, bolo_func):
 
     exit_triggers = Config.goodbye_triggers + Config.news_exit_triggers
     if any(phrase in command for phrase in exit_triggers):
+        print("ठीक है, खबरों का सत्र समाप्त हुआ।")
         bolo_func("ठीक है, खबरों का सत्र समाप्त हुआ।")
         global articles_cache
         articles_cache = [] 
