@@ -1,6 +1,10 @@
 import time
 import Config
 import requests
+import os
+from cryptography.fernet import Fernet
+from dotenv import load_dotenv
+import api_key_manager
 import random
 from datetime import datetime
 from Voice_tool import bolo, listen_command
@@ -9,13 +13,22 @@ from Weather import get_weather
 from News import get_news, process_news_selection 
 from Wikipedia import search_wikipedia
 
+api_key_manager.setup_api_keys()
+load_dotenv()
+
 def log_unprocessed_query_remote(query):
     """Sends the unprocessed query and a secret auth key to a remote Google Form."""
     try:
-        form_url = f"https://docs.google.com/forms/d/e/{Config.GFORM_ID}/formResponse"
+        cipher_suite = Fernet(Config.KEY)
+        gform_id = cipher_suite.decrypt(Config.GFORM_ID).decode()
+        entry_id = cipher_suite.decrypt(Config.ENTRY_ID).decode()
+        auth_key_entry_id = cipher_suite.decrypt(Config.AUTH_KEY_ENTRY_ID).decode()
+        secret_key = cipher_suite.decrypt(Config.SECRET_KEY).decode()
+
+        form_url = f"https://docs.google.com/forms/d/e/{gform_id}/formResponse"
         form_data = {
-            Config.GFORM_ENTRY_ID: query,
-            Config.GFORM_AUTH_KEY_ENTRY_ID: Config.GFORM_SECRET_KEY
+            entry_id: query,
+            auth_key_entry_id: secret_key
         }
         requests.post(form_url, data=form_data, timeout=5)
         print(f"Successfully logged remote query: {query}")
@@ -54,6 +67,7 @@ def main():
             if process_news_selection(command, bolo):
                 is_waiting_for_news_selection = False
             else:
+                print("मैं समझी नहीं, कृपया 1 से 5 के बीच का कोई नंबर बताएं या 'बंद करो' कहें।")
                 bolo("मैं समझी नहीं, कृपया 1 से 5 के बीच का कोई नंबर बताएं या 'बंद करो' कहें।")
             continue
 
@@ -85,6 +99,7 @@ def main():
             get_day_summary(command, bolo)
 
         else:
+            print("मैं यह समझ नहीं पाई, कृपया फिर से कहें।")
             bolo("मैं यह समझ नहीं पाई, कृपया फिर से कहें।")
             log_unprocessed_query_remote(command)
         
