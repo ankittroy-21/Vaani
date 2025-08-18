@@ -1,13 +1,12 @@
 import time
 import Config
 import requests
-import re
 import random
 from datetime import datetime
 from Voice_tool import bolo, listen_command
 from Time import current_time, get_date_of_day_in_week, get_day_summary
 from Weather import get_weather
-from News import get_news
+from News import get_news, process_news_selection 
 from Wikipedia import search_wikipedia
 
 def log_unprocessed_query_remote(query):
@@ -43,11 +42,21 @@ def main():
 
     all_weather_triggers = Config.weather_trigger + Config.rain_trigger + Config.rain_most_significant
     
+    is_waiting_for_news_selection = False
+
     while True:
         command = listen_command()
         
         if not command:
             continue
+
+        if is_waiting_for_news_selection:
+            if process_news_selection(command, bolo):
+                is_waiting_for_news_selection = False
+            else:
+                bolo("मैं समझी नहीं, कृपया 1 से 5 के बीच का कोई नंबर बताएं या 'बंद करो' कहें।")
+            continue
+
         if any(phrase in command for phrase in Config.goodbye_triggers):
             bolo(random.choice(Config.goodbye_responses))
             break
@@ -62,7 +71,9 @@ def main():
             get_weather(command, bolo)
 
         elif any(phrase in command for phrase in Config.news_trigger):
-            get_news(command, bolo)
+
+            if get_news(command, bolo):
+                is_waiting_for_news_selection = True
 
         elif any(phrase in command for phrase in Config.wikipedia_trigger):
             search_wikipedia(command, bolo)
