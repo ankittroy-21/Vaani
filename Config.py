@@ -1,10 +1,8 @@
-WEATHER_API_KEY = "d8d27914ed689d6db6b7cfaaa81b03af"
-GNEWS_API_KEY = "176a4e62933fed171ad078e1c9f4476a"
-
-GFORM_ID = "1FAIpQLSeyjwu3FVXX1EEHU_m5X92TT18ufOakzbN38jUxSFye6KT9eg"
-GFORM_ENTRY_ID = "entry.417489695"
-GFORM_AUTH_KEY_ENTRY_ID = "entry.1175725749"
-GFORM_SECRET_KEY = "Vaan1-Pr0j3ct-S3cr3t-@2025"
+KEY = b'3e69lMJLmT9MnI2S0GF7HmucJVbTA464WurRGd3KZII='
+GFORM_ID = b'gAAAAABoo3iUcmMkUzwNN1G7x5FV7l_-10fWBNr7AXAG8XIqr98sGGwfzPfrBPEtfb8wUdJsoO3o7oCPQ516xNw9IRo4q6WtRBq4Cj4sR1yGp9n8JHBY3wwW9McRFpMi-rrL70nLtVDahze_StOgT1Rz1X6M-KI_Hw=='
+ENTRY_ID = b'gAAAAABoo3iUahwAQH04P197gCXrcc0QPwTwhGDk3FcugFc8Ua1xys4QooGZ9UjFW67jQLGo6ckG7RXPtlI1ZN4BX_sT7HMSPQ=='
+AUTH_KEY_ENTRY_ID = b'gAAAAABoo3iUKlg8DwpQch5wvr5WsxwIMh1u2h7Ixby-wN2ZKCKiRwjdV-H9c4I9XO39PHmRepwCd2iOkoB4ynAQqm4tichPrYWpNzkDQMXnbAZ_0IC-iyg='
+SECRET_KEY = b'gAAAAABoo3iU9uq0Yd4XAbNCCfoyNTSvOWoJkiOCx16EVITCzFuXPDh6XtZP6QKggRI8_WQseZWwWEOqpAftJZ_020nKFvqjTpo-M15Yr1UFtmycPn41sOs='
 
 timedekh = ["समय बताओ", "अभी टाइम क्या है", "कितना बजा है", "समय क्या हुआ है", "वक्त बता दो", "क्या टाइम हुआ है", "अभी कितने बजे हैं",
  "समय की जानकारी दो", "मुझे समय बताइए", "बता दो कितने बजे हैं", "क्या आप मुझे समय बता सकते हैं", "अभी का समय क्या है", "घड़ी में टाइम क्या है", 
