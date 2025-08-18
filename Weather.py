@@ -1,6 +1,7 @@
 import requests
 import Config
 from datetime import date, timedelta, datetime
+import os
 
 def _parse_location(command):
     """A dedicated helper function to reliably parse the city name from a command."""
@@ -30,7 +31,7 @@ def _format_date_hindi(date_str):
 def get_rain_forecast(command, city, bolo_func):
     """Fetches and reports daily rain forecasts with specific, formatted dates."""
     try:
-        geo_url = f"http://api.openweathermap.org/geo/1.0/direct?q={city}&limit=1&appid={Config.WEATHER_API_KEY}"
+        geo_url = f"http://api.openweathermap.org/geo/1.0/direct?q={city}&limit=1&appid={os.getenv('WEATHER_API_KEY')}"
         geo_response = requests.get(geo_url)
         geo_response.raise_for_status()
         geo_data = geo_response.json()
@@ -124,7 +125,7 @@ def get_general_weather(command, city_to_check, bolo_func):
     """Provides general weather details."""
     try:
         url = (f"http://api.openweathermap.org/data/2.5/weather?"
-               f"q={city_to_check}&appid={Config.WEATHER_API_KEY}&units=metric&lang=hi")
+               f"q={city_to_check}&appid={os.getenv('WEATHER_API_KEY')}&units=metric&lang=hi")
         
         response = requests.get(url)
         response.raise_for_status()
