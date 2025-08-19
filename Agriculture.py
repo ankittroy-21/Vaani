@@ -1,8 +1,8 @@
-# Agriculture.py (UPDATED - FIXED FOR REAL API)
 import requests
 import json
 from datetime import datetime
 import Config
+import os
 from Voice_tool import bolo
 import random
 
@@ -62,7 +62,7 @@ def get_agmarknet_price(hindi_commodity, hindi_market="Lucknow", hindi_state="Ut
         english_state = STATE_MAPPING.get(hindi_state, hindi_state)
         
         # Use configuration from Config.py
-        api_key = Config.AGMARKNET_API_KEY
+        api_key = os.getenv('AGMARKNET_API_KEY')
         base_url = Config.AGMARKNET_BASE_URL
         
         # Build the API URL with parameters - using correct field names from API response
