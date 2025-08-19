@@ -239,3 +239,26 @@ date_trigger = [
 ]
 news_exit_triggers = [
     "नहीं", "ना", "बस", "काफी है", "और नहीं", "बाहर निकलो", "एग्जिट", "मत बताओ"]
+
+# config.py (ADD these lines)
+
+# Agmarknet API Configuration
+AGMARKNET_API_KEY = "579b464db66ec23bdd000001cd8b569e734b4d2f7eae0dde559963cc"
+AGMARKNET_BASE_URL = "https://api.data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070"
+
+# Agriculture Default Settings
+DEFAULT_STATE = "Uttar Pradesh"
+DEFAULT_DISTRICT = "Lucknow"
+DEFAULT_MARKET = "Lucknow"
+
+# Agricultural Economics Keywords
+agri_price_trigger = ["भाव", "दाम", "कीमत", "बाजार", "mandi", "market", "price", "bhav", "daam", "bazar"]
+agri_scheme_trigger = ["योजना", "सब्सिडी", "सहायता", "loan", "scheme", "subsidy", "yojana", "sahayata"]
+agri_advice_trigger = ["सलाह", "कैसे उगाएं", "बुवाई", "सिंचाई", "advisory", "advice", "salah", "kaise ugaen", "buwai", "sinchai"]
+
+# Common Entities (Crops, Markets)
+
+agri_commodities = [
+    "गेहूं", "धान", "गन्ना", "सब्जियां", "दालें", "आलू", "प्याज", "टमाटर", 
+    "चावल", "बैंगन", "भिंडी", "फूलगोभी", "केला", "नींबू", "अदरक", "हल्दी"]
+agri_markets = ["लखनऊ", "दिल्ली", "मुंबई", "कानपुर", "lucknow", "delhi", "mumbai", "kanpur"]
