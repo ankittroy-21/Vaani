@@ -12,6 +12,8 @@ from Time import current_time, get_date_of_day_in_week, get_day_summary
 from Weather import get_weather
 from News import get_news, process_news_selection 
 from Wikipedia import search_wikipedia
+from Agriculture import process_agriculture_command
+
 
 api_key_manager.setup_api_keys()
 load_dotenv()
@@ -62,8 +64,19 @@ def main():
         
         if not command:
             continue
+        
+         # --- NEW: AGRICULTURE CHECK (Add this block FIRST) ---
+        is_agriculture_command = process_agriculture_command(command, bolo)
+        if is_agriculture_command:
+            time.sleep(1)
+            continue # Skip the rest of the loop, we handled an agri command
+        # ----------------------------------------------------
 
-        if is_waiting_for_news_selection:
+        # --- Your existing checks (time, weather, news, etc.) ---32
+        if any(phrase in command for phrase in Config.goodbye_triggers):
+            # ... existing code ...
+
+         if is_waiting_for_news_selection:
             if process_news_selection(command, bolo):
                 is_waiting_for_news_selection = False
             else:
