@@ -26,6 +26,8 @@ def log_unprocessed_query_remote(query):
         entry_id = cipher_suite.decrypt(Config.ENTRY_ID).decode()
         auth_key_entry_id = cipher_suite.decrypt(Config.AUTH_KEY_ENTRY_ID).decode()
         secret_key = cipher_suite.decrypt(Config.SECRET_KEY).decode()
+        
+
 
         form_url = f"https://docs.google.com/forms/d/e/{gform_id}/formResponse"
         form_data = {

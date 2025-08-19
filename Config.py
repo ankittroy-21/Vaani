@@ -1,3 +1,6 @@
+# Agmarknet API Configuration
+AGMARKNET_API_KEY = ""
+AGMARKNET_BASE_URL = "https://api.data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070"
 KEY = b'3e69lMJLmT9MnI2S0GF7HmucJVbTA464WurRGd3KZII='
 GFORM_ID = b'gAAAAABoo3iUcmMkUzwNN1G7x5FV7l_-10fWBNr7AXAG8XIqr98sGGwfzPfrBPEtfb8wUdJsoO3o7oCPQ516xNw9IRo4q6WtRBq4Cj4sR1yGp9n8JHBY3wwW9McRFpMi-rrL70nLtVDahze_StOgT1Rz1X6M-KI_Hw=='
 ENTRY_ID = b'gAAAAABoo3iUahwAQH04P197gCXrcc0QPwTwhGDk3FcugFc8Ua1xys4QooGZ9UjFW67jQLGo6ckG7RXPtlI1ZN4BX_sT7HMSPQ=='
@@ -238,27 +241,60 @@ date_trigger = [
     "तारीख", "डेट", "दिनांक", "आज क्या तारीख है", "आज कौन सी तारीख है"
 ]
 news_exit_triggers = [
-    "नहीं", "ना", "बस", "काफी है", "और नहीं", "बाहर निकलो", "एग्जिट", "मत बताओ"]
-
-# config.py (ADD these lines)
-
-# Agmarknet API Configuration
-AGMARKNET_API_KEY = "579b464db66ec23bdd000001cd8b569e734b4d2f7eae0dde559963cc"
-AGMARKNET_BASE_URL = "https://api.data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070"
+    "नहीं", "ना", "बस", "काफी है", "और नहीं", "बाहर निकलो", "एग्जिट", "मत बताओ"
+    
+]
 
 # Agriculture Default Settings
 DEFAULT_STATE = "Uttar Pradesh"
 DEFAULT_DISTRICT = "Lucknow"
 DEFAULT_MARKET = "Lucknow"
 
-# Agricultural Economics Keywords
-agri_price_trigger = ["भाव", "दाम", "कीमत", "बाजार", "mandi", "market", "price", "bhav", "daam", "bazar"]
-agri_scheme_trigger = ["योजना", "सब्सिडी", "सहायता", "loan", "scheme", "subsidy", "yojana", "sahayata"]
-agri_advice_trigger = ["सलाह", "कैसे उगाएं", "बुवाई", "सिंचाई", "advisory", "advice", "salah", "kaise ugaen", "buwai", "sinchai"]
+agri_price_trigger = ["भाव", "दाम", "कीमत", "बाजार", "मंडी", "दर", "rate", "price", "bhav", "daam", "keemat", "bazar", "mandi", "kitne ka", "kya daam", "kya bhav"]
+agri_scheme_trigger = ["योजना", "सब्सिडी", "सहायता", "लोन", "ऋण", "बीमा", "मदद", "अनुदान", "scheme", "subsidy", "loan", "help", "yojana", "sahayata", "sarkari"]
+agri_advice_trigger = ["सलाह", "जानकारी", "कैसे उगाएं", "बुवाई", "सिंचाई", "कटाई", "खाद", "बीमारी", "रोकथाम", "advisory", "advice", "salah", "kaise ugaen", "tip", "solution"]
 
-# Common Entities (Crops, Markets)
 
 agri_commodities = [
-    "गेहूं", "धान", "गन्ना", "सब्जियां", "दालें", "आलू", "प्याज", "टमाटर", 
-    "चावल", "बैंगन", "भिंडी", "फूलगोभी", "केला", "नींबू", "अदरक", "हल्दी"]
-agri_markets = ["लखनऊ", "दिल्ली", "मुंबई", "कानपुर", "lucknow", "delhi", "mumbai", "kanpur"]
+    # Vegetables
+    "आलू", "प्याज", "टमाटर", "बैंगन", "भिंडी", "फूलगोभी", "बंदगोभी", "गाजर", "मूली", "खीरा",
+    # Grains
+    "गेहूं", "धान", "चावल", "मक्का", "ज्वार", "बाजरा", "जौ",
+    # Pulses
+    "चना", "मटर", "मसूर", "अरहर", "उड़द", "मूंग",
+    # Cash Crops
+    "गन्ना", "कपास", "सोयाबीन", "मूंगफली", "सरसों", "तिल",
+    # Fruits
+    "केला", "आम", "सेब", "संतरा", "अंगूर", "पपीता",
+    # Spices
+    "हल्दी", "अदरक", "मिर्च", "धनिया", "जीरा"
+]
+
+# Districts List
+agri_markets = [
+    "लखनऊ", "दिल्ली", "मुंबई", "कानपुर", "बंगलौर", "चेन्नई", "कोलकाता", "हैदराबाद",
+    "अहमदाबाद", "पुणे", "जयपुर", "इंदौर", "भोपाल", "पटना", "रांची", "देहरादून"
+]
+
+# States List
+agri_states = [
+    "उत्तर प्रदेश", "महाराष्ट्र", "दिल्ली", "मध्य प्रदेश", "बिहार", "पंजाब", "राजस्थान",
+    "हरियाणा", "गुजरात", "कर्नाटक", "तमिलनाडु", "पश्चिम बंगाल", "आंध्र प्रदेश"
+]
+
+# Crop Stages
+agri_stages = ["बुवाई", "सिंचाई", "खाद", "कटाई", "भंडारण", "बीमारी", "रोकथाम"]
+
+# Response Templates
+PRICE_RESPONSE_TEMPLATES = [
+    "{} मंडी में {} का भाव प्रति क्विंटल {} रुपये है।",
+    "{} में {} की कीमत {} रुपये प्रति क्विंटल है।",
+    "आज {} मंडी में {} का दाम {} रुपये है।",
+    "{} का भाव {} मंडी में {} रुपये प्रति क्विंटल चल रहा है।"
+]
+
+SCHEME_RESPONSE_TEMPLATES = [
+    "{} की खेती के लिए ये योजनाएं उपलब्ध हैं: {}",
+    "{} उगाने के लिए सरकारी सहायता: {}",
+    "{} किसानों के लिए योजनाएं: {}"
+]
