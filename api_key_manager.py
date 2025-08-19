@@ -1,3 +1,4 @@
+# api_key_manager.py (OPTIONAL enhancement)
 import os
 
 def setup_api_keys():
@@ -15,11 +16,15 @@ def setup_api_keys():
     print("\n" + "-"*50)
     gnews_key = input(" Enter your GNews API Key: ")
     print("-"*50)
-
+    
+    print("\n" + "-"*50)
+    agmarknet_key = input(" Enter your Agmarknet API Key (from data.gov.in): ")
+    print("-"*50)
 
     with open('.env', 'w') as f:
         f.write(f'WEATHER_API_KEY="{weather_key}"\n')
         f.write(f'GNEWS_API_KEY="{gnews_key}"\n')
+        f.write(f'AGMARKNET_API_KEY="{agmarknet_key}"\n')
 
     print("\nAPI keys saved successfully to .env file!")
     print("You will not be asked for them again.\n")
