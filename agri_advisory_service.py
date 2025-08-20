@@ -1,30 +1,100 @@
-def get_farming_advisory(crop_type, stage):
+import json
+import os
+import time
+import Config
+from Voice_tool import bolo
+
+CROP_DATABASE = {}
+
+def load_crop_data(crop_name):
     """
-    Provides farming advice for a specific crop at a given stage.
-    This is a mock database and can be expanded.
+    Loads advisory data for a specific crop from its JSON file.
+    Caches the data to avoid reading the file multiple times.
     """
-    advisory_db = {
-        "गेहूं": {
-            "बुवाई": "समय पर बुवाई करें (नवंबर के पहले दो सप्ताह)। प्रमाणित बीजों का प्रयोग करें और बीज उपचार अवश्य करें।",
-            "सिंचाई": "गेहूं में 4-6 सिंचाइयों की आवश्यकता होती है। पहली सिंचाई 21 दिन बाद और बाद की सिंचाइयां आवश्यकतानुसार करें।",
-            "कटाई": "जब दाने सख्त हो जाएं और उनमें नमी 20% से कम हो जाए, तब कटाई करें। कटाई के बाद फसल को अच्छी तरह सुखाएं।"
-        },
-        "धान": {
-            "बुवाई": "नर्सरी में बीज की बुवाई करें और 25-30 दिन के पौधे की रोपाई करें। रोपाई के समय खेत में पानी का स्तर 2-3 सेमी रखें।",
-            "सिंचाई": "धान को अधिक पानी की आवश्यकता होती है। खेत में लगातार पानी का स्तर बनाए रखें, खासकर फूल आने और दाना भरने की अवस्था में।",
-            "कटाई": "जब 80% बालियां सुनहरी हो जाएं, तब कटाई करें। कटाई के बाद फसल को 3-4 दिन खेत में सुखाएं।"
-        },
-        "आलू": {
-            "बुवाई": "अक्टूबर-नवंबर में बुवाई करें। स्वस्थ और रोगमुक्त कंदों का चयन करें और उन्हें काटकर बोएं।",
-            "सिंचाई": "बुवाई के तुरंत बाद हल्की सिंचाई करें। मिट्टी में नमी बनाए रखने के लिए नियमित अंतराल पर सिंचाई करते रहें।",
-            "कटाई": "जब पत्तियां पीली होकर सूखने लगें, तब खुदाई करें। खुदाई के 10-15 दिन पहले सिंचाई बंद कर दें।"
-        },
-        "टमाटर": {
-            "बुवाई": "नर्सरी तैयार करें और 3-4 सप्ताह बाद पौधों की रोपाई करें। अच्छी जल निकासी वाली मिट्टी का चयन करें।",
-            "सिंचाई": "नियमित रूप से हल्की सिंचाई करें। ड्रिप सिंचाई का उपयोग पानी बचाने और रोगों को कम करने में मदद करता है।",
-            "कटाई": "जब फल पूरी तरह से लाल और सख्त हो जाएं, तब उन्हें तोड़ें। सुबह या शाम के समय तुड़ाई करना बेहतर होता है।"
-        }
-    }
+    global CROP_DATABASE
+    if crop_name in CROP_DATABASE:
+        return CROP_DATABASE[crop_name]
+
+    try:
+        file_path = os.path.join('crop_data', f'{crop_name}.json')
+        if not os.path.exists(file_path):
+            print(f"Error: Data file not found for crop '{crop_name}' at {file_path}")
+            return None
+
+        with open(file_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            CROP_DATABASE[crop_name] = data
+            return data
+    except (json.JSONDecodeError, FileNotFoundError) as e:
+        print(f"Error loading data for {crop_name}: {e}")
+        return None
+
+def speak_full_info(crop_name, crop_data, bolo_func):
+    """
+    Speaks the full crop information section by section to avoid long silences.
+    """
+    bolo_func(f"ठीक है, मैं आपको {crop_name} के बारे में पूरी जानकारी दे रही हूँ।")
+    time.sleep(0.5) # A small pause for natural flow
+
+    # 2. Stream the information section by section.
+    for main_key, main_value in crop_data.items():
+        bolo_func(f"{main_key}:")
+        if isinstance(main_value, dict):
+            for sub_key, sub_value in main_value.items():
+                if isinstance(sub_value, dict):
+                    bolo_func(f"{sub_key} के तहत:")
+                    for item_key, item_value in sub_value.items():
+                        bolo_func(f"{item_key}: {item_value}")
+                        time.sleep(0.3)
+                else:
+                    bolo_func(f"{sub_key}: {sub_value}")
+        else:
+            bolo_func(main_value)
+        time.sleep(1) 
+
+def get_farming_advisory(crop, stage, bolo_func):
+    """
+    Provides advisory based on crop and stage. Handles full info requests separately.
+    """
+    crop_data = load_crop_data(crop)
+    if not crop_data:
+        bolo_func(f"माफ़ कीजिए, '{crop}' फसल के लिए कोई जानकारी उपलब्ध नहीं है।")
+        return
+
+    if not stage or stage == "पूरी जानकारी":
+        speak_full_info(crop, crop_data, bolo_func)
+        return
+
+    if stage in crop_data:
+        stage_info = crop_data[stage]
+        response = f"{crop} की {stage} की सलाह: "
+        if isinstance(stage_info, dict):
+            for key, value in stage_info.items():
+                response += f"{key} - {value}. "
+        else:
+            response += stage_info
+        bolo_func(response)
+    else:
+        # Fallback if a specific stage is asked but not found
+        intro = crop_data.get("परिचय", f"'{crop}' के लिए कोई सामान्य जानकारी नहीं मिली।")
+        bolo_func(intro)
+
+def handle_advice_query(command, bolo_func):
+    """
+    Primary function to process a farming advice query.
+    """
+    all_commodities = Config.agri_commodities + ["मशरूम", "मूंगफली", "उड़द", "मूंग", "चना", "गेहूं", "धान", "आलू", "टमाटर"]
+    found_crop = next((c for c in all_commodities if c in command), None)
     
-    # Return the specific advice or a default message
-    return advisory_db.get(crop_type, {}).get(stage, "इस फसल या चरण के लिए कोई विशेष सलाह उपलब्ध नहीं है।")
+    if not found_crop:
+        bolo_func("आप किस फसल के लिए सलाह चाहते हैं?")
+        return
+
+    all_stages = Config.agri_stages + ["पूरी जानकारी", "परिचय", "मिट्टी और जलवायु", "उन्नत किस्में", "खेती की प्रक्रिया", "रोग और कीट प्रबंधन", "कटाई और भंडारण", "बाजार और बिक्री"]
+    found_stage = next((s for s in all_stages if s in command), None) # Default to None to get all info
+    
+    get_farming_advisory(found_crop, found_stage, bolo_func)
+    
+    # Ask a follow-up question
+    time.sleep(1) # Pause before asking the next question
+    bolo_func("क्या आप किसी और फसल के बारे में जानना चाहेंगे?")
