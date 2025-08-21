@@ -12,7 +12,8 @@ from Time import current_time, get_date_of_day_in_week, get_day_summary
 from Weather import get_weather
 from News import get_news, process_news_selection 
 from Wikipedia import search_wikipedia
-from Agriculture import process_agriculture_command
+from agri_command_processor import process_agriculture_command
+from agri_advisory_service import get_farming_advisory
 
 
 api_key_manager.setup_api_keys()
@@ -27,8 +28,6 @@ def log_unprocessed_query_remote(query):
         auth_key_entry_id = cipher_suite.decrypt(Config.AUTH_KEY_ENTRY_ID).decode()
         secret_key = cipher_suite.decrypt(Config.SECRET_KEY).decode()
         
-
-
         form_url = f"https://docs.google.com/forms/d/e/{gform_id}/formResponse"
         form_data = {
             entry_id: query,
@@ -67,6 +66,7 @@ def main():
         if not command:
             continue
         
+<<<<<<< HEAD
         is_agriculture_command = process_agriculture_command(command, bolo)
         if is_agriculture_command:
             time.sleep(1)
@@ -74,6 +74,15 @@ def main():
 
         if any(phrase in command for phrase in Config.goodbye_triggers):
          if is_waiting_for_news_selection:
+=======
+        # --- AGRICULTURE CHECK ---
+        is_agriculture_command = process_agriculture_command(command, bolo)
+        if is_agriculture_command:
+            time.sleep(1)
+            continue # Skip the rest of the loop, we handled an agri command
+
+        if is_waiting_for_news_selection:
+>>>>>>> b97e456c08631c23453b5fda9bd6203ffce10634
             if process_news_selection(command, bolo):
                 is_waiting_for_news_selection = False
             else:
@@ -95,7 +104,6 @@ def main():
             get_weather(command, bolo)
 
         elif any(phrase in command for phrase in Config.news_trigger):
-
             if get_news(command, bolo):
                 is_waiting_for_news_selection = True
 
