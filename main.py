@@ -67,17 +67,12 @@ def main():
         if not command:
             continue
         
-         # --- NEW: AGRICULTURE CHECK (Add this block FIRST) ---
         is_agriculture_command = process_agriculture_command(command, bolo)
         if is_agriculture_command:
             time.sleep(1)
-            continue # Skip the rest of the loop, we handled an agri command
-        # ----------------------------------------------------
+            continue
 
-        # --- Your existing checks (time, weather, news, etc.) ---32
         if any(phrase in command for phrase in Config.goodbye_triggers):
-            # ... existing code ...
-
          if is_waiting_for_news_selection:
             if process_news_selection(command, bolo):
                 is_waiting_for_news_selection = False
