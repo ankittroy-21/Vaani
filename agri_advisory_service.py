@@ -83,7 +83,9 @@ def handle_advice_query(command, bolo_func):
     """
     Primary function to process a farming advice query.
     """
-    all_commodities = Config.agri_commodities + ["मशरूम", "मूंगफली", "उड़द", "मूंग", "चना", "गेहूं", "धान", "आलू", "टमाटर","मिर्च","धान","संतरा"]
+    all_commodities = Config.agri_commodities + [
+    "मशरूम", "मूंगफली", "उड़द", "मूंग", "चना", "गेहूं", "धान", "आलू", 
+    "टमाटर", "मिर्च", "संतरा", "अरहर", "सोयाबीन", "केला", "कपास", "आम", "अंगूर", "प्याज", "भिंडी", "गोभी", "पालक", "लौकी", "कद्दू", "बैंगन", "मटर", "गाजर", "सेब", "नींबू", "अदरक", "हल्दी"]
     found_crop = next((c for c in all_commodities if c in command), None)
     
     if not found_crop:
