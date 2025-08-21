@@ -9,7 +9,10 @@ def _parse_location(command):
         Config.weather_trigger +
         Config.rain_trigger +
         Config.weather_junk +
-        Config.rain_most_significant
+        Config.rain_most_significant +
+        Config.weather_full_report +
+        Config.weather_temperature +
+        Config.weather_wind
     )
     command_words = command.split()
     location_words = [word for word in command_words if word not in all_words_to_remove]
