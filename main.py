@@ -66,7 +66,7 @@ def main():
         if not command:
             continue
         
-<<<<<<< HEAD
+
         is_agriculture_command = process_agriculture_command(command, bolo)
         if is_agriculture_command:
             time.sleep(1)
@@ -74,15 +74,11 @@ def main():
 
         if any(phrase in command for phrase in Config.goodbye_triggers):
          if is_waiting_for_news_selection:
-=======
-        # --- AGRICULTURE CHECK ---
-        is_agriculture_command = process_agriculture_command(command, bolo)
+            is_agriculture_command = process_agriculture_command(command, bolo)
         if is_agriculture_command:
             time.sleep(1)
-            continue # Skip the rest of the loop, we handled an agri command
-
+            continue
         if is_waiting_for_news_selection:
->>>>>>> b97e456c08631c23453b5fda9bd6203ffce10634
             if process_news_selection(command, bolo):
                 is_waiting_for_news_selection = False
             else:
