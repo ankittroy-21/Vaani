@@ -113,7 +113,9 @@ def main():
             get_day_summary(command, bolo)
 
         else:
-            bolo(random.choice(Config.unrecognized_command_responses))
+            response = random.choice(Config.unrecognized_command_responses)
+            print(response)
+            bolo(response)
             log_unprocessed_query_remote(command)
         
         time.sleep(1)
