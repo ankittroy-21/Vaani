@@ -113,8 +113,7 @@ def main():
             get_day_summary(command, bolo)
 
         else:
-            print("मैं यह समझ नहीं पाई, कृपया फिर से कहें।")
-            bolo("मैं यह समझ नहीं पाई, कृपया फिर से कहें।")
+            bolo(random.choice(Config.unrecognized_command_responses))
             log_unprocessed_query_remote(command)
         
         time.sleep(1)
