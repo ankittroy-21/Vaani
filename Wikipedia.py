@@ -1,6 +1,7 @@
 import wikipedia
 import random
 import Config
+from Voice_tool import bolo_stream
 
 def search_wikipedia(command, bolo_func):
     query = command
@@ -12,25 +13,18 @@ def search_wikipedia(command, bolo_func):
         bolo_func("आप विकिपीडिया पर क्या खोजना चाहते हैं?")
         return
 
-    # Randomized acknowledgement before starting the search
     search_message = random.choice(Config.wikipedia_search_responses).format(query)
     bolo_func(search_message)
 
     try:
         wikipedia.set_lang("hi")
-        
-        # Get the default summary and take only the first paragraph
-        full_summary = wikipedia.summary(query)
-        first_paragraph = full_summary.split('\n')[0]
+        full_summary = wikipedia.summary(query, sentences=10)
 
-        # Randomized introduction before giving the summary
         summary_intro = random.choice(Config.wikipedia_summary_responses)
         print(summary_intro)
         bolo_func(summary_intro)
-        
-        # Print and speak only the concise, first-paragraph summary
-        print(first_paragraph)
-        bolo_func(first_paragraph)
+        print(full_summary)
+        bolo_stream(full_summary)
 
     except wikipedia.exceptions.DisambiguationError as e:
         options = ', '.join(e.options[:3])
