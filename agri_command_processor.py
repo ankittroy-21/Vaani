@@ -1,5 +1,3 @@
-# agri_command_processor.py (Enhanced Version)
-
 import Config
 from Voice_tool import bolo
 
@@ -9,23 +7,7 @@ from agri_scheme_service import handle_scheme_query
 from agri_advisory_service import handle_advice_query
 
 def process_agriculture_command(command, bolo_func, entities, context, force_intent=None):
-    """
-<<<<<<< HEAD
-    Analyzes the user's command and routes it to the correct handler.
-    This enhanced version uses a context object to handle follow-up questions
-    and has a more robust routing logic.
 
-    Args:
-        command (str): The user's voice command.
-        bolo_func (function): The function to speak text.
-        entities (dict): Entities extracted by the NLU engine.
-        context (Context): The conversation context manager.
-        force_intent (str, optional): An intent forced by the main loop for contextual replies.
-=======
-    Analyzes the command and returns a specific status:
-    "HANDLED", "SCHEME_NOT_FOUND", or "NOT_HANDLED".
->>>>>>> 99af8066a8e7c79aaa8fa10d146813ab0e88bc02
-    """
     command = command.lower()
     intent_to_use = force_intent
     
@@ -51,7 +33,6 @@ def process_agriculture_command(command, bolo_func, entities, context, force_int
                 bolo_func("मैं आपका कृषि संबंधी प्रश्न समझ नहीं पायी। कृपया दोबारा पूछें।")
                 return True # Command was agricultural but unhandled
 
-<<<<<<< HEAD
     # 2. Route to the correct handler based on the determined intent
     print(f"--- Agri Command Router --- Intent: {intent_to_use}")
     
@@ -68,17 +49,3 @@ def process_agriculture_command(command, bolo_func, entities, context, force_int
         bolo_func("मैं आपकी कृषि संबंधी सहायता नहीं कर सकती। कृपया कुछ और पूछें।")
 
     return True # Return True as an agriculture command was processed
-=======
-    if any(word in command for word in Config.agri_advice_trigger):
-        handle_advice_query(command, bolo_func)
-        return "HANDLED"
-
-    if any(word in command for word in Config.agri_price_trigger):
-        handle_price_query(command, bolo_func)
-        return "HANDLED"
-
-    if any(word in command for word in Config.agri_scheme_trigger):
-        return handle_scheme_query(command, bolo_func)
-
-    return "NOT_HANDLED"
->>>>>>> 99af8066a8e7c79aaa8fa10d146813ab0e88bc02
