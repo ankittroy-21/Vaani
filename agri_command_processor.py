@@ -7,24 +7,20 @@ from agri_advisory_service import handle_advice_query
 
 def process_agriculture_command(command, bolo_func):
     """
-    Analyzes the user's command and routes it to the correct handler.
-    Returns True if an agriculture command was handled, otherwise False.
+    Analyzes the command and returns a specific status:
+    "HANDLED", "SCHEME_NOT_FOUND", or "NOT_HANDLED".
     """
     command = command.lower()
 
     if any(word in command for word in Config.agri_advice_trigger):
         handle_advice_query(command, bolo_func)
-        return True
+        return "HANDLED"
 
-    # Route to Market Price handler
     if any(word in command for word in Config.agri_price_trigger):
         handle_price_query(command, bolo_func)
-        return True
+        return "HANDLED"
 
-    # Route to Government Scheme handler
     if any(word in command for word in Config.agri_scheme_trigger):
-        handle_scheme_query(command, bolo_func)
-        return True
+        return handle_scheme_query(command, bolo_func)
 
-    # If no specific agriculture command was detected
-    return False
+    return "NOT_HANDLED"
