@@ -5,32 +5,55 @@ import os
 import time
 from gtts import gTTS
 from pygame import mixer
+import re
+from io import BytesIO
 
 def bolo(text, lang='hi'):
     audio_file = "temp_audio.mp3" 
     try:
         tts = gTTS(text=text, lang=lang)
         tts.save(audio_file)
-
-        # Use pygame mixer to play the audio
         mixer.init()
         mixer.music.load(audio_file)
         mixer.music.play()
-
-        # Wait for the audio to finish playing before continuing
         while mixer.music.get_busy():
             time.sleep(0.1)
-        
-        
         mixer.music.unload() 
         mixer.quit()         
         os.remove(audio_file)
-
     except Exception as e:
         print(f"Error in bolo function: {e}")
-        # Fallback in case of an error
         if os.path.exists(audio_file):
             os.remove(audio_file)
+
+def bolo_stream(text, lang='hi'):
+    """
+    NEW FUNCTION: Processes and plays audio sentence by sentence to reduce latency.
+    """
+    sentences = re.split(r'(?<=[.?!])\s*', text)
+    sentences = [s.strip() for s in sentences if s.strip()]
+
+    for sentence in sentences:
+        if not sentence:
+            continue
+        try:
+            tts = gTTS(text=sentence, lang=lang)
+            mp3_fp = BytesIO()
+            tts.write_to_fp(mp3_fp)
+            mp3_fp.seek(0)
+            mixer.init()
+            mixer.music.load(mp3_fp)
+            mixer.music.play()
+            while mixer.music.get_busy():
+                time.sleep(0.1)
+            time.sleep(0.2)
+            
+            mixer.quit()
+
+        except Exception as e:
+            print(f"Error in bolo_stream function: {e}")
+            if mixer.get_init():
+                mixer.quit()
 
 def listen_command():
     r = sr.Recognizer()
