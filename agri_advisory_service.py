@@ -1,3 +1,5 @@
+# agri_advisory_service.py (Enhanced with Context)
+
 import json
 import os
 import time
@@ -54,7 +56,7 @@ def speak_full_info(crop_name, crop_data, bolo_func):
             bolo_func(main_value)
         time.sleep(1)
 
-def get_farming_advisory(crop, stage, bolo_func):
+def get_farming_advisory(crop, stage, bolo_func, context):
     """
     Provides advisory based on crop and stage. Handles full info requests separately.
     """
@@ -70,6 +72,11 @@ def get_farming_advisory(crop, stage, bolo_func):
     if not stage:
         available_stages = ", ".join(list(crop_data.keys()))
         bolo_func(f"आप {crop} के बारे में क्या जानना चाहते हैं? आप पूछ सकते हैं: {available_stages}, या पूरी जानकारी।")
+        context.set(
+            topic='agriculture',
+            state='awaiting_agri_response',
+            data={'query_type': 'advice_stage', 'crop': crop}
+        )
         return
 
     if stage in crop_data:
@@ -85,30 +92,33 @@ def get_farming_advisory(crop, stage, bolo_func):
         intro = crop_data.get("परिचय", f"'{crop}' के लिए कोई सामान्य जानकारी नहीं मिली।")
         bolo_func(f"माफ़ कीजिए, मुझे '{stage}' के बारे में जानकारी नहीं मिली, लेकिन यहाँ {crop} का परिचय है: {intro}")
 
-def handle_advice_query(command, bolo_func):
+def handle_advice_query(command, bolo_func, context): # <--- FIX IS HERE
     """
     Primary function to process a farming advice query.
-    Enhanced to handle unclear queries and provide better fallbacks.
+    Now accepts a context object to handle follow-up questions.
     """
-    all_commodities = Config.agri_commodities + [
-        "मशरूम", "मूंगफली", "उड़द", "मूंग", "चना", "गेहूं", "धान", "आलू",
-        "टमाटर", "मिर्च", "संतरा", "अरहर", "सोयाबीन", "केला", "कपास", "आम", "अंगूर", "प्याज", "भिंडी", "गोभी", "पालक", "लौकी", "कद्दू", "बैंगन", "मटर", "गाजर", "सेब", "नींबू", "अदरक", "हल्दी"
-    ]
-    found_crop = next((c for c in all_commodities if c in command), None)
+    # Check if this is a contextual reply for a crop name
+    if context.state == 'awaiting_agri_response' and context.data.get('query_type') == 'advice_crop':
+        found_crop = next((c for c in Config.agri_commodities if c in command), None)
+        if found_crop:
+            get_farming_advisory(found_crop, None, bolo_func, context)
+            return
+    
+    found_crop = next((c for c in Config.agri_commodities if c in command), None)
 
     if not found_crop:
         bolo_func("आप किस फसल के लिए सलाह चाहते हैं? कृपया फसल का नाम बताएं।")
+        context.set(
+            topic='agriculture',
+            state='awaiting_agri_response',
+            data={'query_type': 'advice_crop'}
+        )
         return
 
-    all_stages = Config.agri_stages + ["पूरी जानकारी", "परिचय", "मिट्टी और जलवायु", "उन्नत किस्में", "खेती की प्रक्रिया", "रोग और कीट प्रबंधन", "कटाई और भंडारण", "बाजार और बिक्री", "उत्पादन क्षेत्र और जलवायु", "कटाई की प्रक्रिया", "कटाई के बाद के रोग और प्रबंधन", "कटाई के बाद प्रबंधन और भंडारण"]
-    
     full_info_keywords = ["पूरी जानकारी", "पूरी", "सब कुछ", "बारे में बताओ", "जानकारी दें"]
     if any(keyword in command for keyword in full_info_keywords):
         found_stage = "पूरी जानकारी"
     else:
-        found_stage = next((s for s in all_stages if s in command), None)
+        found_stage = next((s for s in Config.agri_stages if s in command), None)
 
-    get_farming_advisory(found_crop, found_stage, bolo_func)
-
-    time.sleep(1)
-    bolo_func("क्या मैं आपकी किसी और तरह से मदद कर सकता हूँ?")
+    get_farming_advisory(found_crop, found_stage, bolo_func, context)
