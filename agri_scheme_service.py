@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-# agri_scheme_service.py (Enhanced Version 4)
-=======
-# agri_scheme_service.py
->>>>>>> 99af8066a8e7c79aaa8fa10d146813ab0e88bc02
+
 
 import json
 import os
@@ -14,10 +10,6 @@ import random
 
 # --- Data Mappings and Fallbacks ---
 
-<<<<<<< HEAD
-=======
-# --- File Mappings (No Change) ---
->>>>>>> 99af8066a8e7c79aaa8fa10d146813ab0e88bc02
 CROP_SUBSIDY_MAP = {
     "गेहूं": "gehu_subsidies.json",
     "धान": "dhan_subsidies.json",
@@ -39,7 +31,6 @@ GENERAL_SCHEME_MAP = {
     "कृषि सिंचाई": "pm_krishi_sinchai_yojana.json",
     "टिकाऊ कृषि": "sustainable_agriculture_mission.json",
     "कृषि यंत्रीकरण": "agricultural_mechanization_scheme.json",
-<<<<<<< HEAD
     "कृषि बीमा": "national_agriculture_insurance.json",
     "प्रधानमंत्री किसान मान धन योजना": "pm_kisan_man_dhan.json",
     "राष्ट्रीय कृषि बाजार": "e_nam.json",
@@ -71,12 +62,6 @@ def clean_text(text):
 
 def load_json_data(folder, filename):
     """Generic function to load a JSON file from a specified folder."""
-=======
-}
-
-# --- Helper Functions (No Change) ---
-def load_json_data(folder, filename):
->>>>>>> 99af8066a8e7c79aaa8fa10d146813ab0e88bc02
     try:
         file_path = os.path.join(folder, filename)
         if not os.path.exists(file_path):
@@ -91,14 +76,10 @@ def load_json_data(folder, filename):
 # --- Core Logic Functions ---
 
 def speak_scheme_details(scheme_data, bolo_func):
-<<<<<<< HEAD
     """Validates, cleans, and speaks the details of a scheme in a structured way."""
-=======
->>>>>>> 99af8066a8e7c79aaa8fa10d146813ab0e88bc02
     if not scheme_data:
         bolo_func("माफ़ कीजिए, योजना की जानकारी प्राप्त करने में समस्या हुई।")
         return
-<<<<<<< HEAD
 
     # Clean all text fields before speaking
     for key, value in scheme_data.items():
@@ -124,19 +105,14 @@ def speak_scheme_details(scheme_data, bolo_func):
             bolo_func(f"• {criterion}")
             time.sleep(0.3)
 
-=======
-    bolo_func(f"{scheme_data.get('yojana_ka_naam', 'इस योजना का नाम उपलब्ध नहीं है।')}")
-    bolo_func(f"इसके बारे में जानकारी यह है: {scheme_data.get('yojana_ke_baare_mein', 'विवरण उपलब्ध नहीं है।')}")
->>>>>>> 99af8066a8e7c79aaa8fa10d146813ab0e88bc02
     benefits = scheme_data.get('kya_laabh_milega', [])
-    if isinstance(benefits, list):
+    if benefits:
         bolo_func("इस योजना के तहत आपको यह लाभ मिलेंगे:")
         benefits_list = [benefits] if isinstance(benefits, str) else benefits
         for benefit in benefits_list:
             bolo_func(f"• {benefit}")
             time.sleep(0.3)
 
-<<<<<<< HEAD
     application_process = scheme_data.get('aavedan_prakriya', "") or scheme_data.get('apply_kaise_karein', "")
     if isinstance(application_process, dict):
         if 'jagah' in application_process:
@@ -156,13 +132,11 @@ def speak_scheme_details(scheme_data, bolo_func):
 
 def get_subsidy_info(crop_type, bolo_func, context):
     """Provides subsidy information for a specific crop and sets context for follow-ups."""
-=======
-def get_subsidy_info(crop_type, bolo_func):
->>>>>>> 99af8066a8e7c79aaa8fa10d146813ab0e88bc02
     filename = CROP_SUBSIDY_MAP.get(crop_type)
     if not filename:
         bolo_func(f"{crop_type} के लिए कोई विशेष सब्सिडी योजना नहीं मिली।")
         return
+
     subsidy_data = load_json_data('subsidy_data', filename)
     if subsidy_data and isinstance(subsidy_data, list):
         scheme_names = [s.get('yojana_naam', 'अज्ञात योजना') for s in subsidy_data]
@@ -182,7 +156,6 @@ def get_subsidy_info(crop_type, bolo_func):
     else:
         bolo_func(f"{crop_type} के लिए सब्सिडी डेटा लोड करने में समस्या हुई।")
 
-<<<<<<< HEAD
 
 def get_loan_info(bolo_func):
     """Provides general information about agricultural loans."""
@@ -193,100 +166,6 @@ def get_loan_info(bolo_func):
         bolo_func("अधिक जानकारी और आवेदन के लिए, आप अपने नजदीकी बैंक शाखा में संपर्क कर सकते हैं।")
     else:
         bolo_func("माफ़ कीजिए, लोन की जानकारी अभी उपलब्ध नहीं है।")
-=======
-# --- NEW: Loan & Subsidy Guide Functions ---
-
-def speak_loan_application_guidance(scheme_data, bolo_func):
-    """
-    Provides step-by-step guidance on how to apply and what documents are needed.
-    This directly implements the "Step-by-Step Application Help" feature of your concept.
-    """
-    apply_info = scheme_data.get('apply_kaise_karein', {})
-    if not apply_info:
-        bolo_func("आवेदन प्रक्रिया के बारे में जानकारी इस योजना के लिए उपलब्ध नहीं है।")
-        return
-
-    bolo_func("अब मैं आपको आवेदन करने की प्रक्रिया बताती हूँ।")
-    
-    # Where to apply
-    jagah = apply_info.get('jagah')
-    if jagah:
-        bolo_func(f"आवेदन करने के लिए, आपको यहाँ जाना होगा: {jagah}")
-        time.sleep(0.5)
-
-    # Application process steps
-    prakriya = apply_info.get('prakriya')
-    if prakriya:
-        bolo_func("आवेदन करने के यह कदम हैं:")
-        for i, step in enumerate(prakriya):
-            bolo_func(f"कदम {i+1}: {step}")
-            time.sleep(0.5)
-
-    # Required documents
-    documents = scheme_data.get('zaroori_kaagjaat') or apply_info.get('zaroori_kaagjaat')
-    if documents:
-        # Handling nested document lists in pm_mudra_yojana.json
-        if isinstance(documents, dict):
-            for loan_type, doc_list in documents.items():
-                type_name = loan_type.replace('_', ' ').replace('ke liye', ' के लिए')
-                bolo_func(f"{type_name} यह जरूरी कागजात लगेंगे:")
-                for doc in doc_list:
-                    bolo_func(doc)
-                    time.sleep(0.5)
-        else: # Handling flat document lists
-            bolo_func("इसके लिए यह जरूरी कागजात लगेंगे:")
-            for doc in documents:
-                bolo_func(doc)
-                time.sleep(0.5)
-
-def handle_loan_query(command, bolo_func):
-    """
-    Acts as the "Loan & Subsidy Guide". It identifies relevant loan schemes
-    and interactively provides details on benefits, subsidies, and application process.
-    """
-    bolo_func(" ज़रूर, मैं कर्ज़ और सरकारी सहायता योजनाओं के बारे में जानकारी देने में आपकी मदद कर सकती हूँ।")
-    
-    # Check for specific loan schemes mentioned in the command
-    if "मुद्रा" in command:
-        scheme_name = "मुद्रा योजना"
-        filename = GENERAL_SCHEME_MAP.get(scheme_name)
-        scheme_data = load_json_data('scheme_data', filename)
-        if scheme_data:
-            bolo_func(f"ठीक है, मैं आपको {scheme_name} के बारे में बताती हूँ।")
-            speak_scheme_details(scheme_data, bolo_func)
-            loan_types = scheme_data.get('loan_ke_prakaar', [])
-            if loan_types:
-                bolo_func("इस योजना में तीन तरह के लोन मिलते हैं:")
-                for loan_type in loan_types:
-                    bolo_func(f"{loan_type['naam']}: {loan_type['rashi']}") #
-                    time.sleep(0.5)
-            speak_loan_application_guidance(scheme_data, bolo_func)
-        else:
-            bolo_func(f"माफ़ कीजिए, {scheme_name} के बारे में जानकारी नहीं मिली।")
-        return
-
-    if "कुसुम" in command or "सोलर" in command:
-        scheme_name = "कुसुम योजना"
-        filename = GENERAL_SCHEME_MAP.get(scheme_name)
-        scheme_data = load_json_data('scheme_data', filename)
-        if scheme_data:
-            bolo_func(f"ठीक है, मैं आपको {scheme_name} के बारे में बताती हूँ।")
-            speak_scheme_details(scheme_data, bolo_func)
-            # This directly implements the "Subsidy Information" part of your concept
-            bolo_func("इस योजना में सब्सिडी और लोन दोनों की सुविधा है।")
-            bolo_func("सरकार सोलर पंप लगाने के लिए कुल खर्चे का 60% पैसा सब्सिडी के रूप में देगी।") #
-            bolo_func("आपको बैंक से 30% तक का लोन भी मिल सकता है।") #
-            bolo_func("आपको अपनी जेब से सिर्फ 10% पैसा ही लगाना होगा।") #
-            speak_loan_application_guidance(scheme_data, bolo_func)
-        else:
-            bolo_func(f"माफ़ कीजिए, {scheme_name} के बारे में जानकारी नहीं मिली।")
-        return
-
-    # If no specific scheme is mentioned, present the available options
-    bolo_func("मेरे पास छोटे कारोबार के लिए 'प्रधानमंत्री मुद्रा योजना' और सोलर पंप लगवाने के लिए 'प्रधानमंत्री कुसुम योजना' की जानकारी है। आप किसके बारे में जानना चाहेंगे?")
-
-
->>>>>>> 99af8066a8e7c79aaa8fa10d146813ab0e88bc02
 
 
 def get_all_schemes_info(bolo_func, context):
@@ -306,7 +185,6 @@ def get_all_schemes_info(bolo_func, context):
 
 def handle_scheme_query(command, bolo_func, context):
     """
-<<<<<<< HEAD
     Processes queries related to schemes, subsidies, or loans, and manages conversation context.
     """
     scheme_keywords = {
@@ -316,30 +194,7 @@ def handle_scheme_query(command, bolo_func, context):
         "ड्रोन": "कृषि यंत्रीकरण", "यंत्रीकरण": "कृषि यंत्रीकरण", "मशीनीकरण": "कृषि यंत्रीकरण",
         "मशीन": "कृषि यंत्रीकरण", "ट्रैक्टर": "कृषि यंत्रीकरण", "क्रेडिट कार्ड": "किसान क्रेडिट कार्ड",
         "ई नाम": "राष्ट्रीय कृषि बाजार", "मान धन": "प्रधानमंत्री किसान मान धन योजना"
-=======
-    Returns "HANDLED" on success and "SCHEME_NOT_FOUND" on failure.
-    """
-    loan_keywords = ["लोन", "ऋण", "कर्ज़", "कर्ज", "वित्तीय सहायता"]
-
-    if any(key in command for key in loan_keywords):
-        handle_loan_query(command, bolo_func)
-        return "HANDLED"
-
-    scheme_keywords = {
-        "किसान सम्मान": "किसान सम्मान निधि",
-        "स्वास्थ्य बीमा": "आयुष्मान भारत",
-        "आयुष्मान": "आयुष्मान भारत",
-        "फसल बीमा": "फसल बीमा",
-        "सिंचाई": "कृषि सिंचाई",
-        "ड्रोन": "कृषि यंत्रीकरण",
-        "मशीन": "कृषि यंत्रीकरण",
-        "ट्रैक्टर": "कृषि यंत्रीकरण"
->>>>>>> 99af8066a8e7c79aaa8fa10d146813ab0e88bc02
     }
-    
-    if "कुसुम" in command or "सोलर" in command or "मुद्रा" in command:
-        handle_loan_query(command, bolo_func)
-        return "HANDLED"
 
     # Handle contextual response for scheme selection
     if context.state == 'awaiting_agri_response' and context.data.get('query_type') == 'scheme_selection':
@@ -355,8 +210,8 @@ def handle_scheme_query(command, bolo_func, context):
         return
 
     found_scheme_key = next((key for key in scheme_keywords if key in command), None)
+    
     if found_scheme_key:
-<<<<<<< HEAD
         scheme_name = scheme_keywords[found_scheme_key]
         filename = GENERAL_SCHEME_MAP.get(scheme_name)
         if filename:
@@ -390,15 +245,3 @@ def handle_scheme_query(command, bolo_func, context):
 
     # Fallback response if no specific intent is matched
     bolo_func("मैं आपको कृषि योजनाओं, सब्सिडी, या ऋण के बारे में जानकारी दे सकती हूँ। कृपया बताएं कि आप किस बारे में जानना चाहते हैं।")
-=======
-        # ... (logic to speak details) ...
-        return "HANDLED"
-
-    found_crop = next((c for c in Config.agri_commodities if c in command), None)
-    if found_crop:
-        get_subsidy_info(found_crop, bolo_func)
-        return "HANDLED"
-
-    # If an agri scheme trigger was in the command but no specific scheme was found
-    return "SCHEME_NOT_FOUND"
->>>>>>> 99af8066a8e7c79aaa8fa10d146813ab0e88bc02
