@@ -1,4 +1,3 @@
-# agri_advisory_service.py (Enhanced with Context)
 
 import json
 import os
@@ -9,10 +8,6 @@ from Voice_tool import bolo
 CROP_DATABASE = {}
 
 def load_crop_data(crop_name):
-    """
-    Loads advisory data for a specific crop from its JSON file.
-    Caches the data to avoid reading the file multiple times.
-    """
     global CROP_DATABASE
     if crop_name in CROP_DATABASE:
         return CROP_DATABASE[crop_name]
@@ -36,7 +31,7 @@ def speak_full_info(crop_name, crop_data, bolo_func):
     Speaks the full crop information section by section to avoid long silences.
     """
     bolo_func(f"ज़रूर, मैं आपको {crop_name} के बारे में पूरी जानकारी देता हूँ।")
-    time.sleep(0.5) # A small pause for natural flow
+    time.sleep(0.5)
 
     for main_key, main_value in crop_data.items():
         spoken_key = main_key.replace('_', ' ').capitalize()
@@ -92,11 +87,7 @@ def get_farming_advisory(crop, stage, bolo_func, context):
         intro = crop_data.get("परिचय", f"'{crop}' के लिए कोई सामान्य जानकारी नहीं मिली।")
         bolo_func(f"माफ़ कीजिए, मुझे '{stage}' के बारे में जानकारी नहीं मिली, लेकिन यहाँ {crop} का परिचय है: {intro}")
 
-def handle_advice_query(command, bolo_func, context): # <--- FIX IS HERE
-    """
-    Primary function to process a farming advice query.
-    Now accepts a context object to handle follow-up questions.
-    """
+def handle_advice_query(command, bolo_func, context): 
     # Check if this is a contextual reply for a crop name
     if context.state == 'awaiting_agri_response' and context.data.get('query_type') == 'advice_crop':
         found_crop = next((c for c in Config.agri_commodities if c in command), None)

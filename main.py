@@ -19,7 +19,8 @@ from Weather import get_weather
 from News import get_news, process_news_selection
 from Wikipedia import search_wikipedia
 from agri_command_processor import process_agriculture_command
-
+from social_scheme_service import handle_social_schemes_query
+from social_scheme_service import handle_social_schemes_query, handle_scheme_selection
 
 # --- Initial Setup ---
 api_key_manager.setup_api_keys()
@@ -60,8 +61,6 @@ def log_unprocessed_query_local(query):
 # A set of intents that can temporarily interrupt a conversation
 INTERRUPTING_INTENTS = {"get_time", "get_weather", "get_wikipedia"}
 
-
-# --- Main Application Logic (with intelligent interruption handling) ---
 def main():
     startup_message = random.choice(Config.startup_responses)
     print(startup_message)
@@ -94,6 +93,8 @@ def main():
                  bolo("चलिए वापस आते हैं। " + "आप किस खबर के बारे में विस्तार से जानना चाहेंगे?")
             elif context.state == 'awaiting_agri_response':
                  bolo("चलिए कृषि संबंधी विषय पर वापस आते हैं। आप क्या पूछ रहे थे?")
+            elif context.state == 'awaiting_scheme_selection':  # Add this condition
+                 bolo("चलिए सरकारी योजनाओं के विषय पर वापस आते हैं। आप किस योजना के बारे में जानना चाहते हैं?")
             continue
 
         # --- NEW: CONTEXT HANDLING LOGIC ---
@@ -110,6 +111,12 @@ def main():
                 # Force intent to agri_scheme to handle single-word replies like "गेहूं"
                 process_agriculture_command(command, bolo, entities, context, force_intent="get_agri_scheme")
                 context.clear() # Clear context after handling
+                continue
+            # If context is waiting for scheme selection
+            elif context.state == 'awaiting_scheme_selection':
+                print("--- CONTEXT: Awaiting Scheme Selection ---")
+                # Handle scheme selection logic here
+                handle_scheme_selection(command, bolo, context)
                 continue
 
         # --- Main Dispatcher for New Commands ---
@@ -130,17 +137,16 @@ def main():
             search_wikipedia(command, bolo)
         elif intent == "get_historical_date":
             get_day_summary(command, bolo)
-        elif intent in ["get_agri_price", "get_agri_scheme", "get_agri_advice"]:
+        elif intent in ["get_agri_price", "get_agri_scheme", "get_agri_advice", "get_social_schemes"]:  # Update this line
             process_agriculture_command(command, bolo, entities, context)
         else:
             if is_in_context:
-                bolo("मैं समझी नहीं, कृपया अपेक्षित जवाब दें या कोई दूसरा कमांड बोलें।")
+                bolo("मैं समझी नहीं, कृपया अपेक्षित जवाब दें या कोई दूसरा कमांड बोलें。")
             else:
                 bolo(random.choice(Config.unrecognized_command_responses))
                 log_unprocessed_query_remote(command)
 
         time.sleep(1)
-
-
+        
 if __name__ == "__main__":
     main()
