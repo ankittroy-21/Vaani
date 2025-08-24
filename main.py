@@ -73,6 +73,12 @@ def main():
         if not command:
             continue
 
+        # --- FIX: Rule-based override for simple, critical commands ---
+        if command in ["समय बताओ", "टाइम बताओ", "समय बताओ समय बताओ", "टाइम क्या है", "अभी क्या टाइम हुआ है"]:
+            current_time(bolo)
+            continue
+        # --- END OF FIX ---
+
         intent, score, entities = process_nlu(command)
         print(f"Intent: {intent} (Score: {score:.2f}), Entities: {entities}")
 
