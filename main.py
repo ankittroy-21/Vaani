@@ -19,7 +19,7 @@ from Weather import get_weather
 from News import get_news, process_news_selection
 from Wikipedia import search_wikipedia
 from agri_command_processor import process_agriculture_command
-from social_scheme_service import handle_social_schemes_query
+# --- Social Scheme imports are now primary handlers ---
 from social_scheme_service import handle_social_schemes_query, handle_scheme_selection
 
 # --- Initial Setup ---
@@ -27,7 +27,7 @@ api_key_manager.setup_api_keys()
 load_dotenv()
 
 
-# --- Logging functions (Restored) ---
+# --- Logging functions ---
 def log_unprocessed_query_remote(query):
     """Sends the unprocessed query and a secret auth key to a remote Google Form."""
     try:
@@ -89,15 +89,16 @@ def main():
                 search_wikipedia(command, bolo)
 
             time.sleep(1)
+            # Restore context prompt after interruption
             if context.state == 'awaiting_news_selection':
                  bolo("चलिए वापस आते हैं। " + "आप किस खबर के बारे में विस्तार से जानना चाहेंगे?")
             elif context.state == 'awaiting_agri_response':
                  bolo("चलिए कृषि संबंधी विषय पर वापस आते हैं। आप क्या पूछ रहे थे?")
-            elif context.state == 'awaiting_scheme_selection':  # Add this condition
+            elif context.state == 'awaiting_scheme_selection':
                  bolo("चलिए सरकारी योजनाओं के विषय पर वापस आते हैं। आप किस योजना के बारे में जानना चाहते हैं?")
             continue
 
-        # --- NEW: CONTEXT HANDLING LOGIC ---
+        # --- Context Handling Logic ---
         if is_in_context:
             if context.state == 'awaiting_news_selection':
                 status = process_news_selection(command, bolo, context)
@@ -105,17 +106,13 @@ def main():
                     context.clear()
                 if status != 'NOT_HANDLED':
                     continue
-            # If context is waiting for an agricultural response, route directly
             elif context.state == 'awaiting_agri_response':
                 print("--- CONTEXT: Awaiting Agri Response ---")
-                # Force intent to agri_scheme to handle single-word replies like "गेहूं"
                 process_agriculture_command(command, bolo, entities, context, force_intent="get_agri_scheme")
-                context.clear() # Clear context after handling
+                context.clear()
                 continue
-            # If context is waiting for scheme selection
             elif context.state == 'awaiting_scheme_selection':
-                print("--- CONTEXT: Awaiting Scheme Selection ---")
-                # Handle scheme selection logic here
+                print("--- CONTEXT: Awaiting Social Scheme Selection ---")
                 handle_scheme_selection(command, bolo, context)
                 continue
 
@@ -137,11 +134,15 @@ def main():
             search_wikipedia(command, bolo)
         elif intent == "get_historical_date":
             get_day_summary(command, bolo)
-        elif intent in ["get_agri_price", "get_agri_scheme", "get_agri_advice", "get_social_schemes"]:  # Update this line
+        # --- NEW: Direct handling for social schemes ---
+        elif intent == "get_social_schemes":
+            handle_social_schemes_query(command, bolo, context)
+        # --- Agriculture commands are now separate ---
+        elif intent in ["get_agri_price", "get_agri_scheme", "get_agri_advice"]:
             process_agriculture_command(command, bolo, entities, context)
         else:
             if is_in_context:
-                bolo("मैं समझी नहीं, कृपया अपेक्षित जवाब दें या कोई दूसरा कमांड बोलें。")
+                bolo("मैं समझी नहीं, कृपया अपेक्षित जवाब दें या कोई दूसरा कमांड बोलें।")
             else:
                 bolo(random.choice(Config.unrecognized_command_responses))
                 log_unprocessed_query_remote(command)
