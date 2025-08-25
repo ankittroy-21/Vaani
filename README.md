@@ -3,29 +3,39 @@
 Vaani is a smart, Python-based voice assistant designed for users who may face literacy challenges. It operates entirely through voice commands in Hindi, eliminating the need for reading or typing and making digital information accessible to everyone.
 
 ---
-## ✨ Features
+## ✨ Core Features
+🗣️ **Voice-First Interface:** Built to understand natural spoken Hindi and provide clear, audible responses.
 
-* **🗣️ Voice-Based Interaction:** Understands spoken Hindi commands and provides spoken responses.
-* **⏰ Time & Date:** Get the current time with natural greetings for morning, afternoon, evening, and night.
-* **🌦️ Dynamic Weather Forecasts:** Ask for the weather in any city (e.g., "Lucknow का मौसम बताओ").
-* **📰 Latest News Headlines:** Listen to top news headlines from India or ask about specific topics (e.g., "क्रिकेट की खबरें सुनाओ").
-* **📚 Wikipedia Search:** Get quick summaries from Wikipedia on any topic you ask about.
-* **🎵 Play Songs:** Ask Vaani to play any song, and it will open it for you on YouTube.
+🌾 **Comprehensive Agricultural Suite:** A dedicated module for farmers providing real-time market prices, crop-specific farming advice, and information on agricultural schemes and subsidies.
+
+📋**Government Scheme Information:** Detailed information on both central social welfare schemes and agriculture-specific programs.
+
+🌦️ **Advanced Weather & Rain Forecasts:** Provides general weather reports, temperature, wind speed, and specific rain predictions (today, tomorrow, or the next likely day).
+
+📰 **Daily News & Information:** Delivers the latest news headlines and allows for in-depth exploration of specific stories.
+
+🌐 **General Knowledge & Utilities:** Offers quick facts from Wikipedia, the current time, and historical information about the current date.
+
+🧠 **Smart NLU Engine:** Powered by a Sentence Transformer model, it understands the user's intent semantically, handles colloquial language, and extracts key information from commands.
+
+
 
 ---
 ## 🛠️ Built With
 
 * **Python** 3.8+
 * **Libraries**:
-    * `SpeechRecognition` for voice-to-text.
-    * `gTTS` for text-to-speech.
-    * `playsound` for audio playback.
-    * `requests` for API communication.
+    * Natural Language Understanding: sentence-transformers, torch, rapidfuzz
+    * Speech-to-Text: SpeechRecognition
+    * Text-to-Speech: gTTS
+    * Audio Playback: pygame
     * `wikipedia` for encyclopedia lookups.
-    * `deep-translator` for real-time translation.
+    * API Communication: requests .
 * **APIs**:
     * OpenWeatherMap API
     * GNews API
+    * Agmarknet API (For market prices from data.gov.in)
+      
 
 ---
 ## 🚀 Getting Started
@@ -55,21 +65,15 @@ Follow these instructions to get a copy of the project up and running on your lo
     * You will need to get free API keys from the services below and add them to this file.
         * **OpenWeatherMap API Key:** Get it from [OpenWeatherMap](https://openweathermap.org/appid)
         * **GNews API Key:** Get it from [GNews](https://gnews.io/)
+        * **Government API:**  Get it from [data_gov](https://data.gov.in)
     * Your `config.py` file should look like this:
         ```python
         WEATHER_API_KEY = "YOUR_SECRET_WEATHER_KEY_HERE"
         GNEWS_API_KEY = "YOUR_SECRET_GNEWS_KEY_HERE"
         ```
-
-4.  **Install dependencies**
-    * The `install.bat` file contains all the necessary Python libraries. Install them with one command:
-        ```bash
-        install.bat
-        ```
 <br>
 <br>
 
-  ## 🚀Run the  ```install.bat``` file, and you're all set. No other steps are needed!
 
 <br>
 <br>
