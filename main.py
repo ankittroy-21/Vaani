@@ -126,7 +126,7 @@ def main():
         elif intent == "get_social_schemes":
             handle_social_schemes_query(command, bolo, context)
         elif intent in ["get_agri_price", "get_agri_scheme", "get_agri_advice"]:
-            process_agriculture_command(command, bolo, entities, context)
+            process_agriculture_command(command, bolo, entities, context,force_intent=intent)
         else:
             if is_in_context:
                 bolo("मैं समझी नहीं, कृपया अपेक्षित जवाब दें या कोई दूसरा कमांड बोलें।")
