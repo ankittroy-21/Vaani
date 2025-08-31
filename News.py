@@ -1,5 +1,3 @@
-# News.py
-
 import requests
 import Config
 import os
