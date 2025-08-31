@@ -1,4 +1,3 @@
-
 import json
 import os
 import time
@@ -18,6 +17,7 @@ def load_crop_data(crop_name):
             print(f"Error: Data file not found for crop '{crop_name}' at {file_path}")
             return None
 
+        # --- THIS IS THE CORRECTED LINE ---
         with open(file_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
             CROP_DATABASE[crop_name] = data
