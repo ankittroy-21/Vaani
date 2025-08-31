@@ -383,7 +383,6 @@ news_exit_triggers = [
     
 ]
 
-# config.py (Enhanced Version)
 
 ENTITY_ALIASES = {
     # Crops
@@ -542,3 +541,6 @@ SCHEME_RESPONSE_TEMPLATES = [
     "{} के लिए उपलब्ध सब्सिडी योजनाएं: {}",
     "{} किसानों के लिए वित्तीय सहायता योजनाएं: {}"
 ]
+
+# NEW: List of general agricultural terms
+agri_general_terms = ['फसल', 'खेती', 'किसान', 'बीज', 'खाद', 'सिंचाई', 'कृषि']
