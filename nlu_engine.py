@@ -1,25 +1,20 @@
-# nlu_engine.py (Enhanced Version)
-
 from sentence_transformers import SentenceTransformer, util
 import torch
 import Config
 import re
-from rapidfuzz import process as fuzzprocess # <<< NEW: Import for fuzzy matching
+from rapidfuzz import process as fuzzprocess
+import nltk 
+from pos_tagger import get_pos_tags 
 
 print("Loading NLU model... This may take a moment.")
-# --- ENHANCEMENT: You can optionally switch to a model fine-tuned on Indian languages ---
-# To use, uncomment the line below and comment out the original 'distiluse' model.
-# model = SentenceTransformer('ai4bharat/indic-sentence-transformer')
 model = SentenceTransformer('sentence-transformers/distiluse-base-multilingual-cased-v1')
 print("NLU model loaded successfully.")
 
-# --- ENHANCEMENT: INTENT_EXAMPLES now include ultra-short, colloquial queries ---
 INTENT_EXAMPLES = {
     "get_agri_price": [
         "आलू का भाव क्या है", "मंडी में गेहूं का दाम बताओ", "प्याज की कीमत पता करो", "टमाटर का क्या रेट है",
         "आज का भाव", "कितने का आलू बिक रहा है", "गेहूं की कीमत क्या है", "मूंगफली का दाम", "लखनऊ में आलू का भाव",
         "दिल्ली मंडी में टमाटर की कीमत", "उत्तर प्रदेश में गेहूं का दाम", "क्या भाव है चावल का", "कीमत बताओ धान की",
-        # Ultra-short and direct queries
         "भाव", "कीमत", "दाम", "रेट", "प्याज भाव", "आलू कीमत", "टमाटर"
     ],
     "get_agri_scheme": [
@@ -27,14 +22,12 @@ INTENT_EXAMPLES = {
         "बीमा योजना की जानकारी दो", "गेहूं की खेती के लिए सब्सिडी", "धान के लिए सरकारी योजना", "किसान कर्ज योजना",
         "फसल बीमा के बारे में बताओ", "आर्थिक सहायता कैसे मिलेगी", "सरकारी सहायता योजना", "कृषि ऋण कहाँ से मिलेगा",
         "ड्रोन योजना के बारे में जानकारी दो", "ट्रैक्टर पर सब्सिडी", "मशीनरी खरीदने की योजना",
-        # Ultra-short and direct queries
         "योजना", "सब्सिडी", "लोन", "कर्ज", "ऋण", "बीमा", "ड्रोन", "ट्रैक्टर"
     ],
     "get_agri_advice": [
         "गेहूं की बुवाई कैसे करें", "फसल में बीमारी लग गयी", "खाद के बारे में सलाह दो", "सिंचाई कब करनी है",
         "आलू की खेती कैसे करें", "धान की रोग रोकथाम", "टमाटर की उन्नत किस्में", "मिट्टी और जलवायु की जानकारी",
         "कटाई का सही समय", "भंडारण कैसे करें", "कीट प्रबंधन के उपाय", "खेती की प्रक्रिया बताओ", "फसल की पूरी जानकारी दो",
-        # Ultra-short and direct queries
         "खेती", "बुवाई", "सिंचाई", "कटाई", "खाद", "बीमारी", "कीट", "रोकथाम", "गेहूं की जानकारी"
     ],
     "get_news_detail": [
@@ -44,18 +37,15 @@ INTENT_EXAMPLES = {
     "get_weather": [
         "आज मौसम कैसा है", "तापमान बताओ", "क्या कल बारिश होगी", "बाहर निकलना ठीक रहेगा क्या?", "लखनऊ का मौसम",
         "दिल्ली में तापमान क्या है", "मुंबई में बारिश होगी क्या", "हवा की गति", "नमी कितनी है", "मौसम की पूरी जानकारी दो",
-        # Ultra-short and direct queries
         "मौसम", "तापमान", "हवा", "नमी", "गर्मी", "सर्दी", "बारिश", "धूप"
     ],
     "get_time": [
         "समय बताओ", "अभी टाइम क्या है", "कितने बजे हैं", "वक्त बताओ", "टाइम क्या हुआ", "घड़ी में क्या बजा है",
-        # Ultra-short and direct queries
         "समय", "टाइम", "कितना बजा"
     ],
     "get_news": [
         "आज की खबरें सुनाओ", "खबर सुनाओ", "समाचार बताओ", "मुख्य समाचार क्या हैं", "ताज़ा न्यूज़ बताओ",
         "हेडलाइंस क्या हैं", "देश में क्या चल रहा है", "आज की सुर्खियाँ",
-        # Ultra-short and direct queries
         "खबर", "समाचार", "न्यूज़", "हेडलाइंस"
     ],
     "get_wikipedia": [
@@ -102,7 +92,7 @@ def recognize_intent_semantic(command):
 
 def fuzzy_intent_fallback(command, intents_dict, threshold=75):
     """
-    NEW: A fallback mechanism using fuzzy string matching for low-confidence queries.
+    A fallback mechanism using fuzzy string matching for low-confidence queries.
     This acts as a safety net for misheard words or very short commands.
     """
     all_examples = []
@@ -120,74 +110,118 @@ def fuzzy_intent_fallback(command, intents_dict, threshold=75):
     
     return "unknown", 0.0
 
-def extract_entities(command):
-    """Extracts key entities from the command using Config.py lists and aliases."""
-    # This function remains largely the same as your original, as it's effective.
-    entities = {}
-    scheme_keywords = {
-        "ड्रोन": "यंत्रीकरण", "यंत्रीकरण": "यंत्रीकरण", "मशीनीकरण": "यंत्रीकरण",
-        "ट्रैक्टर": "यंत्रीकरण", "मशीन": "यंत्रीकरण"
-    }
-    for keyword, entity_value in scheme_keywords.items():
-        if keyword in command:
-            entities['scheme_type'] = entity_value
-            break
-    for crop in Config.agri_commodities:
-        if crop in command:
-            entities['crop'] = crop; break
-    for market in Config.agri_markets:
-        if market in command:
-            entities['market'] = market; break
-    for state in Config.agri_states:
-        if state in command:
-            entities['state'] = state; break
-    for alias, canonical_name in Config.ENTITY_ALIASES.items():
-        if alias in command:
-            if canonical_name in Config.agri_commodities:
-                entities['crop'] = canonical_name
-            elif canonical_name in Config.agri_markets:
-                entities['market'] = canonical_name
-            elif canonical_name in Config.agri_states:
-                entities['state'] = canonical_name
-    if any(trigger in command for trigger in Config.agri_advice_trigger):
-        for stage in Config.agri_stages:
-            if stage in command:
-                entities['stage'] = stage; break
-    return entities
+# --- Start of Updated Block ---
 
-# In nlu_engine.py
+def extract_noun_phrases(command):
+    """
+    First, tokenizes the command, then uses our POS tagger and a chunk grammar
+    to extract meaningful noun phrases (potential entities).
+    """
+    tokens = nltk.word_tokenize(command)
+    pos_tags = get_pos_tags(tokens)
+
+    # Define a chunk grammar: NP (Noun Phrase)
+    # This rule says an NP can be an optional Determiner ('the', 'a'), followed by
+    # any number of Adjectives, and then one or more Nouns.
+    grammar = "NP: {<DT>?<JJ.*>*<NN.*>+}"
+    
+    cp = nltk.RegexpParser(grammar)
+    tree = cp.parse(pos_tags)
+    
+    noun_phrases = []
+    for subtree in tree.subtrees():
+        if subtree.label() == 'NP':
+            # Join the words of the chunk back into a single string
+            np_text = " ".join(word for word, tag in subtree.leaves())
+            noun_phrases.append(np_text)
+            
+    return noun_phrases
+
+
+def map_entities(noun_phrases):
+    """
+    Takes the extracted noun phrases and maps them to the known entities
+    from the Config file. Now also recognizes general agri terms.
+    """
+    entities = {}
+    
+    # First, check for specific commodities, markets, and states
+    for phrase in noun_phrases:
+        for crop in Config.agri_commodities:
+            if crop in phrase:
+                entities['crop'] = crop; break
+        for market in Config.agri_markets:
+            if market in phrase:
+                entities['market'] = market; break
+        for state in Config.agri_states:
+            if state in phrase:
+                entities['state'] = state; break
+    
+    # If no specific crop was found, check for a general agriculture topic
+    if 'crop' not in entities:
+        for phrase in noun_phrases:
+            for term in Config.agri_general_terms:
+                if term in phrase:
+                    # Mark that a general agriculture topic was found
+                    entities['topic'] = 'agriculture'
+                    # Store the specific term found, e.g., 'फसल'
+                    entities['term'] = term
+                    break
+            if 'topic' in entities:
+                break
+                
+    return entities
 
 def process_nlu(command):
     """
-    A single function to get both intent and entities, now with a rule-based override.
+    A single function to get both intent and entities, now with the most robust override rules.
     """
-    # 1. Get the initial intent and entities
     intent, score = recognize_intent_semantic(command)
-    entities = extract_entities(command)
+    noun_phrases = extract_noun_phrases(command)
+    entities = map_entities(noun_phrases)
     
-    # <<< START: NEW RULE-BASED OVERRIDE LOGIC >>>
-    # If the model confidently thinks it's weather BUT we found a crop, it's wrong.
-    # Override the intent to 'get_agri_price'.
+    # --- Start of Final Rule-Based Override Logic ---
+    
+    # Rule 1: Corrects if a crop-related query is wrongly identified as weather.
     if intent == "get_weather" and 'crop' in entities:
-        print(f"--- RULE OVERRIDE: Corrected intent from 'get_weather' to 'get_agri_price' based on found crop: '{entities['crop']}' ---")
+        print(f"--- RULE OVERRIDE: Corrected intent from 'get_weather' to 'get_agri_price' ---")
         intent = "get_agri_price"
-    # <<< END: NEW RULE-BASED OVERRIDE LOGIC >>>
+        
+    # Rule 2: Corrects if a price query is wrongly identified as a social scheme.
+    price_keywords = ['भाव', 'कीमत', 'दाम', 'रेट']
+    if intent == "get_social_schemes" and 'crop' in entities and any(keyword in command for keyword in price_keywords):
+        print(f"--- RULE OVERRIDE: Corrected intent from '{intent}' to 'get_agri_price' ---")
+        intent = "get_agri_price"
+
+    # Rule 3: Corrects intent if a general agri term is found but the intent is wrong.
+    if entities.get('topic') == 'agriculture' and not intent.startswith('get_agri_'):
+        print(f"--- RULE OVERRIDE: Corrected intent from '{intent}' to 'get_agri_advice' based on general term '{entities.get('term')}' ---")
+        intent = "get_agri_advice"
+
+    # Rule 4 (NEW & MOST IMPORTANT): If a command asks for information about a crop,
+    # it must be an advice query, not a price query.
+    advice_keywords = ['जानकारी', 'बारे में', 'कैसे करें', 'क्या करें', 'सलाह']
+    if 'crop' in entities and any(keyword in command for keyword in advice_keywords):
+        if intent != 'get_agri_advice':
+            print(f"--- RULE OVERRIDE: Corrected intent from '{intent}' to 'get_agri_advice' based on advice keywords. ---")
+            intent = "get_agri_advice"
+
+    # --- End of Final Rule-Based Override Logic ---
 
     CONFIDENCE_THRESHOLD = 0.60
     if intent.startswith("get_agri_"):
         CONFIDENCE_THRESHOLD = 0.55
 
-    # 2. If semantic score is too low, try the fuzzy fallback as a safety net
+    # Fuzzy fallback for low-confidence scores
     if score < CONFIDENCE_THRESHOLD:
-        print(f"--- Semantic score low ({score:.2f}). Trying fuzzy fallback... ---")
         fuzzy_intent, fuzzy_score = fuzzy_intent_fallback(command, INTENT_EXAMPLES)
         if fuzzy_intent != "unknown":
-            print(f"--- Fuzzy fallback succeeded! Intent: {fuzzy_intent} (Score: {fuzzy_score:.2f}) ---")
             intent = fuzzy_intent
-            score = fuzzy_score # Use the fuzzy score
-    
-    # 3. Re-extract entities if intent was changed by fuzzy fallback
+            score = fuzzy_score
+
+    # Re-extract entities if none were found
     if not entities:
-        entities = extract_entities(command)
+        noun_phrases = extract_noun_phrases(command)
+        entities = map_entities(noun_phrases)
 
     return intent, score, entities
