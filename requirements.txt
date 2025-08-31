@@ -8,3 +8,4 @@ cryptography
 sentence-transformers
 torch
 rapidfuzz
+nltk
