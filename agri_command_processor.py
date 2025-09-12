@@ -3,16 +3,16 @@ from Voice_tool import bolo
 from agri_price_service import handle_price_query
 from agri_scheme_service import handle_scheme_query
 from agri_advisory_service import handle_advice_query
+import Config
 
 def process_agriculture_command(command, bolo_func, entities, context, force_intent=None):
     """
-    Processes agricultural commands by trusting the intent passed from the NLU engine
+    Processes agricultural commands using simple keyword-based intent detection
     and handling contextual follow-ups.
     """
     
     # --- Step 1: Handle Contextual Responses First ---
-    # If the assistant is waiting for an answer, it should be handled by the relevant service.
-    if context.state == 'awaiting_agri_response':
+    if hasattr(context, 'state') and context.state == 'awaiting_agri_response':
         query_type = context.data.get('query_type', '')
         if 'advice' in query_type:
             handle_advice_query(command, bolo_func, context)
@@ -21,11 +21,21 @@ def process_agriculture_command(command, bolo_func, entities, context, force_int
             handle_scheme_query(command, bolo_func, context)
             return True
 
-    # --- Step 2: Route New Queries Based on the Forced Intent ---
-    # For new commands, we rely on the intent determined by the NLU in main.py.
-    # We no longer try to re-guess the intent here.
-    
+    # --- Step 2: Simple Keyword-Based Intent Detection ---
+    command_lower = command.lower()
     intent_to_use = force_intent
+    
+    # If no forced intent, detect based on keywords
+    if not intent_to_use:
+        if any(keyword in command_lower for keyword in Config.price_keywords):
+            intent_to_use = "get_agri_price"
+        elif any(keyword in command_lower for keyword in Config.scheme_keywords):
+            intent_to_use = "get_agri_scheme"
+        elif any(keyword in command_lower for keyword in Config.advice_keywords):
+            intent_to_use = "get_agri_advice"
+        else:
+            # Default to advice for general agriculture queries
+            intent_to_use = "get_agri_advice"
     
     print(f"--- Agri Command Router --- Intent: {intent_to_use}")
     
@@ -36,7 +46,7 @@ def process_agriculture_command(command, bolo_func, entities, context, force_int
     elif intent_to_use == "get_agri_advice":
         handle_advice_query(command, bolo_func, context)
     else:
-        # This is a fallback if a non-agri intent was mistakenly sent here.
-        bolo_func("मैं आपकी कृषि संबंधी सहायता नहीं कर सकती। कृपया कुछ और पूछें।")
+        # Fallback 
+        bolo_func("कृषि संबंधी कुछ और पूछें। मैं भाव, योजना, या सलाह दे सकती हूँ।")
 
     return True
