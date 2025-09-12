@@ -7,42 +7,44 @@ from dotenv import load_dotenv
 import api_key_manager
 import random
 from datetime import datetime
-
-# --- Enhanced Imports ---
-from nlu_engine import process_nlu
-from context_manager import Context
-from nlu_preprocessor import normalize_query # <<< NEW: Import the normalizer function
-
-# --- Original Function Imports ---
 from Voice_tool import bolo, listen_command
 from Time import current_time, get_date_of_day_in_week, get_day_summary
 from Weather import get_weather
 from News import get_news, process_news_selection
 from Wikipedia import search_wikipedia
 from agri_command_processor import process_agriculture_command
-from social_scheme_service import handle_social_schemes_query, handle_scheme_selection
+from social_scheme_service import handle_social_schemes_query
 
 # --- Initial Setup ---
 api_key_manager.setup_api_keys()
 load_dotenv()
 
-# --- Logging functions (Unchanged) ---
+# --- Logging functions ---
 def log_unprocessed_query_remote(query):
+    """Sends the unprocessed query and a secret auth key to a remote Google Form."""
     try:
         cipher_suite = Fernet(Config.KEY)
         gform_id = cipher_suite.decrypt(Config.GFORM_ID).decode()
         entry_id = cipher_suite.decrypt(Config.ENTRY_ID).decode()
         auth_key_entry_id = cipher_suite.decrypt(Config.AUTH_KEY_ENTRY_ID).decode()
         secret_key = cipher_suite.decrypt(Config.SECRET_KEY).decode()
+
         form_url = f"https://docs.google.com/forms/d/e/{gform_id}/formResponse"
-        form_data = {entry_id: query, auth_key_entry_id: secret_key}
+        form_data = {
+            entry_id: query,
+            auth_key_entry_id: secret_key
+        }
         requests.post(form_url, data=form_data, timeout=5)
         print(f"Successfully logged remote query: {query}")
+    except requests.exceptions.RequestException as e:
+        print(f"Error: Could not log query remotely. Reason: {e}")
+        log_unprocessed_query_local(query)
     except Exception as e:
-        print(f"An error occurred during remote logging: {e}")
+        print(f"An unexpected error occurred during remote logging: {e}")
         log_unprocessed_query_local(query)
 
 def log_unprocessed_query_local(query):
+    """Fallback to log the query to a local file if remote logging fails."""
     try:
         with open("unprocessed_queries_fallback.txt", "a", encoding="utf-8") as f:
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -50,90 +52,120 @@ def log_unprocessed_query_local(query):
     except Exception as e:
         print(f"Critical Error: Could not write to fallback log file. Reason: {e}")
 
-# --- Interrupting Intents (Unchanged) ---
-INTERRUPTING_INTENTS = {"get_time", "get_weather", "get_wikipedia"}
+# Simple context storage for news articles
+current_articles = []
 
 def main():
+    global current_articles
     startup_message = random.choice(Config.startup_responses)
     print(startup_message)
     bolo(startup_message, lang='hi')
 
-    context = Context()
+    all_weather_triggers = Config.weather_trigger + Config.rain_trigger + Config.rain_most_significant
+    is_waiting_for_news_selection = False
 
     while True:
         command = listen_command()
         if not command:
             continue
 
-        # --- ENHANCEMENT: Normalize the command before processing it ---
-        original_command = command # Keep a copy for logging if needed
-        command = normalize_query(command)
-        print(f"Normalized Command: '{command}' (from Original: '{original_command}')")
-        # --- END OF ENHANCEMENT ---
+        # Store original command for logging
+        original_command = command
+        command_lower = command.lower()
 
-        # Rule-based override for simple, critical commands
-        if command in ["समय", "टाइम"]:
-            current_time(bolo)
+        if is_waiting_for_news_selection:
+            # Create a simple context object for news processing
+            class SimpleContext:
+                def __init__(self, articles):
+                    self.data = {'articles': articles}
+            
+            context = SimpleContext(current_articles)
+            if process_news_selection(command, bolo, context):
+                is_waiting_for_news_selection = False
+                current_articles = []
             continue
 
-        intent, score, entities = process_nlu(command)
-        print(f"Intent: {intent} (Score: {score:.2f}), Entities: {entities}")
+        # Priority order: Most specific triggers first to avoid conflicts
+        
+        # 1. Goodbye (highest priority)
+        if any(phrase in command for phrase in Config.goodbye_triggers):
+            bolo(random.choice(Config.goodbye_responses))
+            break
 
-        is_in_context = context.state is not None
-        is_interrupt = intent in INTERRUPTING_INTENTS and is_in_context
-
-        if is_interrupt:
-            print("--- INTERRUPTION DETECTED ---")
-            if intent == "get_time": current_time(bolo)
-            elif intent == "get_weather": get_weather(command, bolo)
-            elif intent == "get_wikipedia": search_wikipedia(command, bolo)
-            time.sleep(1)
-            # Restore context prompt after interruption
-            if context.state == 'awaiting_news_selection':
-                 bolo("चलिए वापस आते हैं। " + "आप किस खबर के बारे में विस्तार से जानना चाहेंगे?")
-            elif context.state == 'awaiting_agri_response':
-                 bolo("चलिए कृषि संबंधी विषय पर वापस आते हैं। आप क्या पूछ रहे थे?")
-            elif context.state == 'awaiting_scheme_selection':
-                 bolo("चलिए सरकारी योजनाओं के विषय पर वापस आते हैं। आप किस योजना के बारे में जानना चाहते हैं?")
-            continue
-
-        # Context Handling Logic
-        if is_in_context:
-            if context.state == 'awaiting_news_selection':
-                if process_news_selection(command, bolo, context) != 'NOT_HANDLED': continue
-            elif context.state == 'awaiting_agri_response':
-                process_agriculture_command(command, bolo, entities, context, force_intent="get_agri_scheme")
-                context.clear(); continue
-            elif context.state == 'awaiting_scheme_selection':
-                handle_scheme_selection(command, bolo, context); continue
-
-        # Main Dispatcher
-        if intent == "goodbye":
-            bolo(random.choice(Config.goodbye_responses)); break
-        elif intent == "greet":
-            bolo(random.choice(Config.greeting_responses))
-        elif intent == "get_time":
+        # 2. Time requests (very specific)
+        elif any(phrase in command for phrase in Config.timedekh):
             current_time(bolo)
-        elif intent == "get_weather":
+
+        # 3. Date requests (specific)
+        elif any(phrase in command for phrase in Config.date_trigger):
+            get_date_of_day_in_week(command, bolo)
+
+        # 4. Weather (before agriculture to avoid conflicts)
+        elif any(word in command for word in all_weather_triggers):
             get_weather(command, bolo)
-        elif intent == "get_news":
-            articles = get_news(command, bolo)
-            if articles: context.set(topic='news', state='awaiting_news_selection', data={'articles': articles})
-        elif intent == "get_wikipedia":
-            search_wikipedia(command, bolo)
-        elif intent == "get_historical_date":
-            get_day_summary(command, bolo)
-        elif intent == "get_social_schemes":
-            handle_social_schemes_query(command, bolo, context)
-        elif intent in ["get_agri_price", "get_agri_scheme", "get_agri_advice"]:
-            process_agriculture_command(command, bolo, entities, context,force_intent=intent)
-        else:
-            if is_in_context:
-                bolo("मैं समझी नहीं, कृपया अपेक्षित जवाब दें या कोई दूसरा कमांड बोलें।")
-            else:
-                bolo(random.choice(Config.unrecognized_command_responses))
-                log_unprocessed_query_remote(original_command) # Log the original, unprocessed command
 
+        # 5. News (specific)
+        elif any(phrase in command for phrase in Config.news_trigger):
+            articles = get_news(command, bolo)
+            if articles:
+                current_articles = articles
+                is_waiting_for_news_selection = True
+
+        # 6. Wikipedia (specific)
+        elif any(phrase in command for phrase in Config.wikipedia_trigger):
+            search_wikipedia(command, bolo)
+
+        # 7. Agriculture-related (check for specific agriculture context)
+        elif (any(word in command_lower for word in Config.agri_trigger) or 
+              any(crop in command_lower for crop in Config.agri_commodities) or
+              any(market in command_lower for market in Config.agri_markets)):
+            
+            # Create a simple context for agriculture processing
+            class SimpleAgriContext:
+                def __init__(self):
+                    self.state = None
+                    self.data = {}
+                    
+                def set(self, **kwargs):
+                    for key, value in kwargs.items():
+                        setattr(self, key, value)
+                        if key != 'state':
+                            self.data[key] = value
+            
+            context = SimpleAgriContext()
+            process_agriculture_command(command, bolo, {}, context)
+
+        # 8. Social scheme triggers (specific schemes only)
+        elif any(phrase in command_lower for phrase in Config.social_scheme_trigger):
+            # Create a simple context for social schemes
+            class SimpleSchemeContext:
+                def __init__(self):
+                    self.state = None
+                    self.data = {}
+                    
+                def set(self, **kwargs):
+                    for key, value in kwargs.items():
+                        setattr(self, key, value)
+                        if key != 'state':
+                            self.data[key] = value
+            
+            context = SimpleSchemeContext()
+            handle_social_schemes_query(command, bolo, context)
+
+        # 9. Historical date (now more specific, less likely to conflict)
+        elif any(phrase in command for phrase in Config.historical_date_trigger):
+            get_day_summary(command, bolo)
+
+        # 10. Greeting (low priority)
+        elif any(phrase in command for phrase in Config.greeting_triggers):
+            bolo(random.choice(Config.greeting_responses))
+
+        # 11. Unrecognized command
+        else:
+            print("मैं यह समझ नहीं पाई, कृपया फिर से कहें।")
+            bolo("मैं यह समझ नहीं पाई, कृपया फिर से कहें।")
+            log_unprocessed_query_remote(original_command)
+        
         time.sleep(1)
 
 if __name__ == "__main__":
