@@ -14,6 +14,7 @@ from News import get_news, process_news_selection
 from Wikipedia import search_wikipedia
 from agri_command_processor import process_agriculture_command
 from social_scheme_service import handle_social_schemes_query
+from general_knowledge_service import handle_general_knowledge_query
 
 # --- Initial Setup ---
 api_key_manager.setup_api_keys()
@@ -160,7 +161,19 @@ def main():
         elif any(phrase in command for phrase in Config.greeting_triggers):
             bolo(random.choice(Config.greeting_responses))
 
-        # 11. Unrecognized command
+        # 11. General Knowledge Questions (before unrecognized)
+        # Check if it's a curiosity/general knowledge question
+        elif (any(trigger in command_lower for trigger in Config.general_knowledge_triggers) or 
+              any(topic in command_lower for topic in Config.child_curiosity_topics) or
+              '?' in command or '।' in command):
+            # Try to handle as general knowledge question
+            if not handle_general_knowledge_query(command, bolo):
+                # If not handled, fall through to unrecognized
+                print("मैं यह समझ नहीं पाई, कृपया फिर से कहें।")
+                bolo("मैं यह समझ नहीं पाई, कृपया फिर से कहें।")
+                log_unprocessed_query_remote(original_command)
+
+        # 12. Unrecognized command
         else:
             print("मैं यह समझ नहीं पाई, कृपया फिर से कहें।")
             bolo("मैं यह समझ नहीं पाई, कृपया फिर से कहें।")

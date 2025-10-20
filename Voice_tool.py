@@ -100,11 +100,21 @@ def bolo_stream(text, lang='hi', voice_style='news_anchor'):
     - lang: Language code (default 'hi' for Hindi)
     - voice_style: 'news_anchor' for Palki Sharma style, 'default' for original gTTS
     """
-    sentences = re.split(r'(?<=[.?!])\s*', text)
-    sentences = [s.strip() for s in sentences if s.strip()]
+    # Clean and validate input text
+    if not text or not text.strip():
+        print("Error in bolo_stream function: No text to send to TTS API")
+        return
+    
+    text = text.strip()
+    sentences = re.split(r'(?<=[.?!।])\s+', text)
+    sentences = [s.strip() for s in sentences if s.strip() and len(s.strip()) > 0]
+    
+    # If no sentences found, treat whole text as one sentence
+    if not sentences:
+        sentences = [text]
 
     for sentence in sentences:
-        if not sentence:
+        if not sentence or len(sentence) < 1:
             continue
         try:
             # Generate speech with gTTS
