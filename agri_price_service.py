@@ -49,7 +49,7 @@ def get_agmarknet_price(hindi_commodity, hindi_market, hindi_state):
             'sort[arrival_date]': 'desc'
         }
         
-        response = requests.get(Config.AGMARKNET_BASE_URL, params=params, timeout=10)
+        response = requests.get(Config.AGMARKNET_BASE_URL, params=params, timeout=5)
         response.raise_for_status()
         data = response.json()
 

@@ -21,7 +21,7 @@ def get_news(command, bolo_func):
             #...
             url = f"https://gnews.io/api/v4/top-headlines?category=general&lang=hi&country=in&max=5&apikey={os.getenv('GNEWS_API_KEY')}"
 
-        response = requests.get(url)
+        response = requests.get(url, timeout=5)
         response.raise_for_status()
         news_data = response.json()
         articles = news_data.get("articles", [])

@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 import api_key_manager
 import random
 from datetime import datetime
-from Voice_tool import bolo, listen_command
+from Voice_tool import bolo_stream as bolo, listen_command
 from Time import current_time, get_date_of_day_in_week, get_day_summary
 from Weather import get_weather
 from News import get_news, process_news_selection

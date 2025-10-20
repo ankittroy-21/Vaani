@@ -35,7 +35,7 @@ def get_rain_forecast(command, city, bolo_func):
     """Fetches and reports daily rain forecasts with specific, formatted dates."""
     try:
         geo_url = f"http://api.openweathermap.org/geo/1.0/direct?q={city}&limit=1&appid={os.getenv('WEATHER_API_KEY')}"
-        geo_response = requests.get(geo_url)
+        geo_response = requests.get(geo_url, timeout=5)
         geo_response.raise_for_status()
         geo_data = geo_response.json()
         
@@ -48,7 +48,7 @@ def get_rain_forecast(command, city, bolo_func):
 
         forecast_url = (f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}"
                         f"&daily=precipitation_probability_mean&timezone=auto&forecast_days=7")
-        forecast_response = requests.get(forecast_url)
+        forecast_response = requests.get(forecast_url, timeout=5)
         forecast_response.raise_for_status()
         forecast_data = forecast_response.json()
         
@@ -130,7 +130,7 @@ def get_general_weather(command, city_to_check, bolo_func):
         url = (f"http://api.openweathermap.org/data/2.5/weather?"
                f"q={city_to_check}&appid={os.getenv('WEATHER_API_KEY')}&units=metric&lang=hi")
         
-        response = requests.get(url)
+        response = requests.get(url, timeout=5)
         response.raise_for_status()
         weather_data = response.json()
         
