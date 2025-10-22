@@ -16,6 +16,9 @@ from agri_command_processor import process_agriculture_command
 from social_scheme_service import handle_social_schemes_query
 from general_knowledge_service import handle_general_knowledge_query
 from language_manager import get_language_manager, handle_language_command
+from financial_literacy_service import handle_financial_query
+from simple_calculator_service import handle_calculation_query
+from emergency_assistance_service import handle_emergency_query
 
 # --- Initial Setup ---
 api_key_manager.setup_api_keys()
@@ -85,7 +88,11 @@ def main():
         original_command = command
         command_lower = command.lower()
 
-        # Check for language switching command FIRST
+        # PRIORITY 1: Emergency - Handle FIRST and FAST
+        if handle_emergency_query(command, bolo):
+            continue
+        
+        # PRIORITY 2: Language switching
         is_lang_switch, new_lang = handle_language_command(command)
         if is_lang_switch:
             lang_manager.set_language(new_lang)
@@ -137,7 +144,15 @@ def main():
         elif any(phrase in command for phrase in Config.wikipedia_trigger):
             search_wikipedia(command, bolo)
 
-        # 7. Agriculture-related (check for specific agriculture context)
+        # 7. Financial Literacy (for illiterate users - SDG Goal 1)
+        elif handle_financial_query(command, bolo):
+            pass  # Already handled
+
+        # 8. Simple Calculator (for daily math needs)
+        elif handle_calculation_query(command, bolo):
+            pass  # Already handled
+
+        # 9. Agriculture-related (check for specific agriculture context)
         elif (any(word in command_lower for word in Config.agri_trigger) or 
               any(crop in command_lower for crop in Config.agri_commodities) or
               any(market in command_lower for market in Config.agri_markets)):
@@ -157,7 +172,7 @@ def main():
             context = SimpleAgriContext()
             process_agriculture_command(command, bolo, {}, context)
 
-        # 8. Social scheme triggers (specific schemes only)
+        # 10. Social scheme triggers (specific schemes only)
         elif any(phrase in command_lower for phrase in Config.social_scheme_trigger):
             # Create a simple context for social schemes
             class SimpleSchemeContext:
@@ -174,15 +189,15 @@ def main():
             context = SimpleSchemeContext()
             handle_social_schemes_query(command, bolo, context)
 
-        # 9. Historical date (now more specific, less likely to conflict)
+        # 11. Historical date (now more specific, less likely to conflict)
         elif any(phrase in command for phrase in Config.historical_date_trigger):
             get_day_summary(command, bolo)
 
-        # 10. Greeting (low priority)
+        # 12. Greeting (low priority)
         elif any(phrase in command for phrase in Config.greeting_triggers):
             bolo(random.choice(Config.greeting_responses))
 
-        # 11. General Knowledge Questions (before unrecognized)
+        # 13. General Knowledge Questions (before unrecognized)
         # Check if it's a curiosity/general knowledge question
         elif (any(trigger in command_lower for trigger in Config.general_knowledge_triggers) or 
               any(topic in command_lower for topic in Config.child_curiosity_topics) or
@@ -195,7 +210,7 @@ def main():
                 bolo(error_msg, lang=lang_manager.get_tts_code())
                 log_unprocessed_query_remote(original_command)
 
-        # 12. Unrecognized command
+        # 14. Unrecognized command
         else:
             error_msg = lang_manager.get_phrase('error')
             print(error_msg)
