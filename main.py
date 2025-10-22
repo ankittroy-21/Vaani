@@ -15,10 +15,14 @@ from Wikipedia import search_wikipedia
 from agri_command_processor import process_agriculture_command
 from social_scheme_service import handle_social_schemes_query
 from general_knowledge_service import handle_general_knowledge_query
+from language_manager import get_language_manager, handle_language_command
 
 # --- Initial Setup ---
 api_key_manager.setup_api_keys()
 load_dotenv()
+
+# Initialize language manager
+lang_manager = get_language_manager()
 
 # --- Logging functions ---
 def log_unprocessed_query_remote(query):
@@ -58,21 +62,38 @@ current_articles = []
 
 def main():
     global current_articles
-    startup_message = random.choice(Config.startup_responses)
+    
+    # Get greeting in current language
+    startup_message = lang_manager.get_phrase('greeting')[0] + "! " + random.choice(Config.startup_responses)
     print(startup_message)
-    bolo(startup_message, lang='hi')
+    bolo(startup_message, lang=lang_manager.get_tts_code())
 
     all_weather_triggers = Config.weather_trigger + Config.rain_trigger + Config.rain_most_significant
     is_waiting_for_news_selection = False
 
     while True:
-        command = listen_command()
+        # Listen with current language's STT code
+        prompt_text = lang_manager.get_phrase('listening')
+        command = listen_command(
+            lang_code=lang_manager.get_stt_code(),
+            prompt_text=prompt_text
+        )
         if not command:
             continue
 
         # Store original command for logging
         original_command = command
         command_lower = command.lower()
+
+        # Check for language switching command FIRST
+        is_lang_switch, new_lang = handle_language_command(command)
+        if is_lang_switch:
+            lang_manager.set_language(new_lang)
+            lang_name = lang_manager.get_language_name(new_lang)
+            response = f"{lang_manager.get_phrase('greeting', new_lang)[0]}! {lang_name} {lang_manager.get_phrase('listening', new_lang)}"
+            print(response)
+            bolo(response, lang=lang_manager.get_tts_code(new_lang))
+            continue
 
         if is_waiting_for_news_selection:
             # Create a simple context object for news processing
@@ -169,14 +190,16 @@ def main():
             # Try to handle as general knowledge question
             if not handle_general_knowledge_query(command, bolo):
                 # If not handled, fall through to unrecognized
-                print("मैं यह समझ नहीं पाई, कृपया फिर से कहें।")
-                bolo("मैं यह समझ नहीं पाई, कृपया फिर से कहें।")
+                error_msg = lang_manager.get_phrase('error')
+                print(error_msg)
+                bolo(error_msg, lang=lang_manager.get_tts_code())
                 log_unprocessed_query_remote(original_command)
 
         # 12. Unrecognized command
         else:
-            print("मैं यह समझ नहीं पाई, कृपया फिर से कहें।")
-            bolo("मैं यह समझ नहीं पाई, कृपया फिर से कहें।")
+            error_msg = lang_manager.get_phrase('error')
+            print(error_msg)
+            bolo(error_msg, lang=lang_manager.get_tts_code())
             log_unprocessed_query_remote(original_command)
         
         time.sleep(1)

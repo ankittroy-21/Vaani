@@ -169,7 +169,14 @@ def bolo_stream(text, lang='hi', voice_style='news_anchor'):
             if mixer.get_init():
                 mixer.quit()
 
-def listen_command():
+def listen_command(lang_code='hi-IN', prompt_text="कृपया बोलिए :"):
+    """
+    Listen to user command with multi-language support
+    
+    Parameters:
+    - lang_code: Google Speech Recognition language code (e.g., 'hi-IN', 'en-IN', 'mr-IN')
+    - prompt_text: Text to display when listening
+    """
     r = sr.Recognizer()
     r.energy_threshold = 4000  # Adjust based on environment
     r.dynamic_energy_threshold = True
@@ -177,7 +184,7 @@ def listen_command():
     with sr.Microphone() as source:
         r.pause_threshold = 0.8
         r.adjust_for_ambient_noise(source, duration=0.5)
-        print("कृपया बोलिए :")
+        print(prompt_text)
         try:
             audio = r.listen(source, timeout=7, phrase_time_limit=10)
         except sr.WaitTimeoutError:
@@ -185,9 +192,9 @@ def listen_command():
             bolo_stream("कोई आवाज़ नहीं सुनाई दी।")
             return ""
     try:
-        command = r.recognize_google(audio, language='hi-IN')
+        command = r.recognize_google(audio, language=lang_code)
         print(f"आपने कहा: {command}")
-        bolo(f"आपने कहा: {command}")
+        # Don't echo back automatically - let main.py handle this
         return command.lower()
     except sr.UnknownValueError:
         print("क्षमा करें, मैं आपकी बात समझ नहीं पाया।")
