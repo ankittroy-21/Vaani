@@ -29,7 +29,7 @@ except FileNotFoundError:
 
 print("\n2. Testing Voice Module...")
 try:
-    from Voice_tool import bolo_stream, apply_voice_effects
+    from vaani.core.voice_tool import bolo_stream, apply_voice_effects
     print("   ✅ Voice module imported successfully")
 except ImportError as e:
     print(f"   ❌ Import error: {e}")

@@ -2,8 +2,8 @@
 Quick test for Gemini general knowledge integration
 """
 
-from general_knowledge_service import get_gk_service, handle_general_knowledge_query
-from Voice_tool import bolo_stream
+from vaani.services.knowledge.general_knowledge_service import get_gk_service, handle_general_knowledge_query
+from vaani.core.voice_tool import bolo_stream
 
 # Test questions
 test_questions = [

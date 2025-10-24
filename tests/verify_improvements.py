@@ -85,7 +85,7 @@ def main():
     # Check 3: Test Cache Manager
     print_header("3. CACHE MANAGER TEST")
     try:
-        from cache_manager import cache
+        from vaani.core.cache_manager import cache
         print("  ✅ Cache manager imports successfully")
         
         # Quick test

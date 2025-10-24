@@ -2,8 +2,8 @@
 Test Multi-Language Support for Vaani
 """
 
-from language_manager import get_language_manager, handle_language_command
-from Voice_tool import bolo_stream
+from vaani.core.language_manager import get_language_manager, handle_language_command
+from vaani.core.voice_tool import bolo_stream
 
 print("=" * 70)
 print("🌍 Testing Multi-Language Support for Vaani")

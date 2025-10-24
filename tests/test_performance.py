@@ -6,9 +6,9 @@ import sys
 from datetime import datetime
 
 # Import Vaani modules
-from Weather import get_weather, get_general_weather, get_rain_forecast
-from News import get_news
-from cache_manager import cache
+from vaani.services.weather.weather_service import get_weather, get_general_weather, get_rain_forecast
+from vaani.services.news.legacy_news import get_news
+from vaani.core.cache_manager import cache
 
 def mock_bolo(text, lang='hi'):
     """Mock bolo function that doesn't play audio during testing"""
