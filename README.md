@@ -1,18 +1,50 @@
-# 🤖 Vaani – Voice Assistant for Everyone 💬
+# 🤖 Vaani – Voice-First Digital Inclusion for ALL 💬
 
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![SDG Goal 1](https://img.shields.io/badge/SDG-Goal%201:%20No%20Poverty-red.svg)](https://sdgs.un.org/goals/goal1)
+[![SDG Goals](https://img.shields.io/badge/SDG-8%20Goals%20Aligned-green.svg)](https://sdgs.un.org/goals)
 
-Vaani is an intelligent, Python-based voice assistant specifically designed for users with limited or no literacy skills, supporting **UN Sustainable Development Goal 1: No Poverty** by making digital information and services accessible to underserved populations in India. It operates entirely through voice commands in Hindi and multiple Indian languages, eliminating barriers to digital inclusion.
+**College Minor Project | Democratizing Digital Access Through Voice**
+
+Vaani is India's first voice-first digital inclusion platform designed for **300+ million functionally illiterate Indians** - eliminating literacy as a barrier to digital services. While agriculture was our entry point, Vaani serves all underserved populations: **farmers (146M), elderly citizens (104M), disabled persons (27M), domestic workers (50M), daily wage workers (139M), women in conservative families (80M), and millions more** excluded from India's digital revolution.
+
+**Core Principle:** *If you can speak, you deserve equal access to information, rights, and opportunities.*
+
+Vaani operates entirely through voice commands in Hindi and Indian languages, making government schemes, healthcare information, financial services, legal rights, and emergency assistance accessible to **everyone** - regardless of literacy level.
+
+---
+
+## 📚 Documentation
+
+This project has comprehensive documentation:
+
+1. **[PROJECT_ARCHITECTURE.md](PROJECT_ARCHITECTURE.md)** - Complete system architecture, flow diagrams, and technical details
+2. **[PROJECT_PROGRESS.md](PROJECT_PROGRESS.md)** - Development phases, accomplishments, and future goals
+3. **[BROADER_VISION.md](BROADER_VISION.md)** - ⭐ **Expanded vision: Beyond farmers to all illiterate populations**
+4. **[USER_MANUAL.md](USER_MANUAL.md)** - End-user guide with examples
+5. **[DEMO_SCRIPT.md](DEMO_SCRIPT.md)** - 5-minute demo walkthrough
+6. **[DEBUGGING_GUIDE.md](DEBUGGING_GUIDE.md)** - Error tracking, debugging techniques, and useful commands
 
 ---
 
 ## 🎯 Mission & Impact
 
-**Empowering the Underprivileged through Voice Technology**
+**Democratizing Digital India - Beyond Literacy**
 
-Vaani addresses critical challenges faced by illiterate and semi-literate populations:
+Vaani addresses the fundamental barrier facing **695+ million Indians**: literacy should never determine access to digital services.
+
+### **Who Benefits:**
+- 🌾 **Farmers (146M)** - Agricultural advice, market prices, weather forecasts
+- 👴 **Elderly Citizens (104M)** - Healthcare info, pension schemes, medicine reminders
+- ♿ **Disabled Persons (27M)** - Complete voice navigation, independence, dignity
+- 🏠 **Domestic Workers (50M)** - Rights information, safety helplines, skill training
+- 🏗️ **Daily Wage Workers (139M)** - MGNREGA status, minimum wage info, loan schemes
+- 🛒 **Street Vendors (10M)** - Business calculations, PM SVANidhi loans
+- 🧕 **Women in Conservative Families (80M)** - Maternal health, empowerment, privacy
+- 🚂 **Migrant Workers (139M)** - Language translation, local services, emergency help
+- 👧 **Children** - Homework help, curiosity questions, learning support
+
+### **What They Get:**
 - 📱 Access to government schemes and social welfare programs
 - 🌾 Agricultural information and market prices for farmers
 - 💰 Financial literacy and expense tracking
@@ -243,17 +275,76 @@ pip install -e .
 
 ## 🎮 Running Vaani
 
+### Option A: Web Interface (Recommended for Demo) 🌐
+
+The web interface provides a modern, user-friendly way to interact with Vaani through your browser, with both text and voice input support.
+
+**Windows PowerShell:**
+```powershell
+# Quick start with auto-setup
+.\start_web.ps1
+```
+
+**Manual start:**
+```powershell
+# 1. Create and activate virtual environment
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+
+# 2. Install dependencies
+pip install -r requirements.txt
+
+# 3. Start the web server
+python -m vaani.web
+```
+
+**Linux/macOS:**
+```bash
+# 1. Create and activate virtual environment
+python3 -m venv .venv
+source .venv/bin/activate
+
+# 2. Install dependencies
+pip install -r requirements.txt
+
+# 3. Start the web server
+python -m vaani.web
+```
+
+**Access the interface:**
+Open your browser and navigate to: **http://localhost:5000**
+
+**Features:**
+- 🎤 Voice input via browser microphone
+- ⌨️ Text input for quick queries
+- 🔊 Audio playback of responses
+- 📱 Mobile-friendly responsive design
+- 🌐 Works offline (limited features)
+- 🚀 Quick action buttons for common queries
+
+---
+
+### Option B: Terminal/CLI Mode
+
+For development or terminal-based usage:
+
 ### Method 1: As a Module (Recommended)
 ```bash
 python -m vaani.core.main
 ```
 
-### Method 2: After Installation
+### Method 2: Using PowerShell Script
+```powershell
+.\start_vaani.ps1
+```
+
+### Method 3: After Installation
 ```bash
+pip install -e .
 vaani
 ```
 
-### Method 3: Direct Execution
+### Method 4: Direct Execution
 ```bash
 cd vaani/core
 python main.py
