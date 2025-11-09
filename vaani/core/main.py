@@ -1,8 +1,6 @@
 import time
 from vaani.core import config as Config
-import requests
 import os
-from cryptography.fernet import Fernet
 from dotenv import load_dotenv
 from vaani.core import api_key_manager
 import random
@@ -15,6 +13,7 @@ if sys.platform == 'win32':
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
     sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
 from vaani.core.voice_tool import bolo_stream as bolo, listen_command
+from vaani.core.context_manager import BaseContext, NewsContext, AgriculturalContext, SchemeContext
 from vaani.services.time.time_service import current_time, get_date_of_day_in_week, get_day_summary
 from vaani.services.weather.weather_service import get_weather
 # Use enhanced news service instead of the old one
@@ -68,37 +67,14 @@ import hashlib
 USER_ID = hashlib.md5(("default_user" + str(datetime.now().date())).encode()).hexdigest()[:8]
 
 # --- Logging functions ---
-def log_unprocessed_query_remote(query):
-    """Sends the unprocessed query and a secret auth key to a remote Google Form."""
+def log_unprocessed_query(query):
+    """Log unprocessed queries to a local file."""
     try:
-        cipher_suite = Fernet(Config.KEY)
-        gform_id = cipher_suite.decrypt(Config.GFORM_ID).decode()
-        entry_id = cipher_suite.decrypt(Config.ENTRY_ID).decode()
-        auth_key_entry_id = cipher_suite.decrypt(Config.AUTH_KEY_ENTRY_ID).decode()
-        secret_key = cipher_suite.decrypt(Config.SECRET_KEY).decode()
-
-        form_url = f"https://docs.google.com/forms/d/e/{gform_id}/formResponse"
-        form_data = {
-            entry_id: query,
-            auth_key_entry_id: secret_key
-        }
-        requests.post(form_url, data=form_data, timeout=5)
-        print(f"Successfully logged remote query: {query}")
-    except requests.exceptions.RequestException as e:
-        print(f"Error: Could not log query remotely. Reason: {e}")
-        log_unprocessed_query_local(query)
-    except Exception as e:
-        print(f"An unexpected error occurred during remote logging: {e}")
-        log_unprocessed_query_local(query)
-
-def log_unprocessed_query_local(query):
-    """Fallback to log the query to a local file if remote logging fails."""
-    try:
-        with open("unprocessed_queries_fallback.txt", "a", encoding="utf-8") as f:
+        with open("unprocessed_queries.txt", "a", encoding="utf-8") as f:
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             f.write(f"[{timestamp}] - Query: {query}\n")
     except Exception as e:
-        print(f"Critical Error: Could not write to fallback log file. Reason: {e}")
+        print(f"Error: Could not write to log file. Reason: {e}")
 
 # Simple context storage for news articles
 current_articles = []
@@ -143,18 +119,8 @@ def main():
             continue
 
         if is_waiting_for_news_selection:
-            # Create a simple context object for news processing
-            class SimpleContext:
-                def __init__(self, articles):
-                    self.data = {'articles': articles}
-                    
-                def set(self, **kwargs):
-                    for key, value in kwargs.items():
-                        setattr(self, key, value)
-                        if key != 'state':
-                            self.data[key] = value
-            
-            context = SimpleContext(current_articles)
+            # Use unified context for news processing
+            context = NewsContext(current_articles)
             if process_news_selection(command, bolo, context):
                 is_waiting_for_news_selection = False
                 current_articles = []
@@ -208,36 +174,14 @@ def main():
               any(crop in command_lower for crop in Config.agri_commodities) or
               any(market in command_lower for market in Config.agri_markets)):
             
-            # Create a simple context for agriculture processing
-            class SimpleAgriContext:
-                def __init__(self):
-                    self.state = None
-                    self.data = {}
-                    
-                def set(self, **kwargs):
-                    for key, value in kwargs.items():
-                        setattr(self, key, value)
-                        if key != 'state':
-                            self.data[key] = value
-            
-            context = SimpleAgriContext()
+            # Use unified context for agriculture processing
+            context = AgriculturalContext()
             process_agriculture_command(command, bolo, {}, context)
 
         # 10. Social scheme triggers (specific schemes only)
         elif any(phrase in command_lower for phrase in Config.social_scheme_trigger):
-            # Create a simple context for social schemes
-            class SimpleSchemeContext:
-                def __init__(self):
-                    self.state = None
-                    self.data = {}
-                    
-                def set(self, **kwargs):
-                    for key, value in kwargs.items():
-                        setattr(self, key, value)
-                        if key != 'state':
-                            self.data[key] = value
-            
-            context = SimpleSchemeContext()
+            # Use unified context for social schemes
+            context = SchemeContext()
             handle_social_schemes_query(command, bolo, context)
 
         # 11. Historical date (now more specific, less likely to conflict)
@@ -259,14 +203,14 @@ def main():
                 error_msg = lang_manager.get_phrase('error')
                 print(error_msg)
                 bolo(error_msg, lang=lang_manager.get_tts_code())
-                log_unprocessed_query_remote(original_command)
+                log_unprocessed_query(original_command)
 
         # 14. Unrecognized command
         else:
             error_msg = lang_manager.get_phrase('error')
             print(error_msg)
             bolo(error_msg, lang=lang_manager.get_tts_code())
-            log_unprocessed_query_remote(original_command)
+            log_unprocessed_query(original_command)
         
         time.sleep(1)
 
