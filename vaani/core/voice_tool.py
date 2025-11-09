@@ -1,7 +1,6 @@
 import os
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "1"
 import speech_recognition as sr
-import os
 import time
 import sys
 from gtts import gTTS
@@ -64,27 +63,6 @@ FFMPEG_AVAILABLE = check_ffmpeg() if PYDUB_AVAILABLE else False
 
 if not FFMPEG_AVAILABLE and PYDUB_AVAILABLE:
     warnings.warn("FFmpeg not found. Voice enhancement disabled. Using original voice.")
-
-def bolo(text, lang='hi'):
-    # Print the text to terminal before speaking
-    print(f"\n🔊 Vaani: {text}\n")
-    
-    audio_file = "temp_audio.mp3" 
-    try:
-        tts = gTTS(text=text, lang=lang)
-        tts.save(audio_file)
-        mixer.init()
-        mixer.music.load(audio_file)
-        mixer.music.play()
-        while mixer.music.get_busy():
-            time.sleep(0.1)
-        mixer.music.unload() 
-        mixer.quit()         
-        os.remove(audio_file)
-    except Exception as e:
-        print(f"Error in bolo function: {e}")
-        if os.path.exists(audio_file):
-            os.remove(audio_file)
 
 def apply_voice_effects(audio_segment, voice_style='news_anchor'):
     """
@@ -233,9 +211,50 @@ def listen_command(lang_code='hi-IN', prompt_text="कृपया बोलि�
         return command.lower()
     except sr.UnknownValueError:
         print("क्षमा करें, मैं आपकी बात समझ नहीं पाया।")
-        bolo("क्षमा करें, मैं आपकी बात समझ नहीं पाया।")
+        bolo_stream("क्षमा करें, मैं आपकी बात समझ नहीं पाया।")
         return ""
     except sr.RequestError as e:
         print(f"Google Speech Recognition सेवा से कनेक्ट नहीं हो सका; {e}")
-        bolo("Google Speech Recognition सेवा से कनेक्ट नहीं हो सका।")
+        bolo_stream("Google Speech Recognition सेवा से कनेक्ट नहीं हो सका।")
         return ""
+
+def text_to_speech_file(text, lang='hi', output_dir='cache'):
+    """
+    Generate audio file from text and save it to disk
+    
+    Parameters:
+    - text: Text to convert to speech
+    - lang: Language code (default 'hi' for Hindi)
+    - output_dir: Directory to save the audio file
+    
+    Returns:
+    - Path to the generated audio file, or None if failed
+    """
+    if not text or not text.strip():
+        return None
+    
+    try:
+        # Create output directory if it doesn't exist
+        os.makedirs(output_dir, exist_ok=True)
+        
+        # Generate unique filename
+        import hashlib
+        text_hash = hashlib.md5(text.encode()).hexdigest()[:12]
+        filename = f"audio_{text_hash}.mp3"
+        filepath = os.path.join(output_dir, filename)
+        
+        # Check if file already exists (cache)
+        if os.path.exists(filepath):
+            return filepath
+        
+        # Generate speech with gTTS
+        tts = gTTS(text=text, lang=lang, slow=False)
+        tts.save(filepath)
+        
+        return filepath
+    except Exception as e:
+        print(f"Error generating audio file: {e}")
+        return None
+
+# Create alias for backward compatibility
+bolo = bolo_stream

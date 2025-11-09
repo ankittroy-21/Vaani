@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vaani - किसान सहायक | Farmer Assistant</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="logo">
+                <h1>🌾 Vaani</h1>
+                <p class="tagline">आपका डिजिटल किसान साथी | Your Digital Farm Companion</p>
+            </div>
+            <div class="status-bar">
+                <span id="connection-status" class="status-badge">🌐 Online</span>
+                <span id="language-status" class="status-badge">🗣️ हिंदी</span>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main>
+            <!-- Chat Display -->
+            <div class="chat-container" id="chat-container">
+                <div class="welcome-message">
+                    <h2>नमस्ते! 🙏</h2>
+                    <p>मैं वाणी हूं, आपकी डिजिटल किसान सहायक।</p>
+                    <p>Hello! I'm Vaani, your digital farming assistant.</p>
+                    <br>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <span class="feature-icon">🌱</span>
+                            <span>फसल सलाह<br>Crop Advice</span>
+                        </div>
+                        <div class="feature-card">
+                            <span class="feature-icon">📰</span>
+                            <span>समाचार<br>News</span>
+                        </div>
+                        <div class="feature-card">
+                            <span class="feature-icon">💰</span>
+                            <span>योजनाएं<br>Schemes</span>
+                        </div>
+                        <div class="feature-card">
+                            <span class="feature-icon">🌤️</span>
+                            <span>मौसम<br>Weather</span>
+                        </div>
+                        <div class="feature-card">
+                            <span class="feature-icon">💸</span>
+                            <span>ऋण<br>Loans</span>
+                        </div>
+                        <div class="feature-card">
+                            <span class="feature-icon">🚨</span>
+                            <span>आपातकाल<br>Emergency</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <button class="quick-btn" onclick="sendQuickQuery('आज का मौसम कैसा है?')">
+                    🌤️ मौसम
+                </button>
+                <button class="quick-btn" onclick="sendQuickQuery('PM Kisan के बारे में बताओ')">
+                    💰 योजनाएं
+                </button>
+                <button class="quick-btn" onclick="sendQuickQuery('गेहूं की खेती कैसे करें?')">
+                    🌾 फसल सलाह
+                </button>
+                <button class="quick-btn" onclick="sendQuickQuery('आज की खबरें सुनाओ')">
+                    📰 समाचार
+                </button>
+            </div>
+
+            <!-- Input Area -->
+            <div class="input-area">
+                <div class="input-group">
+                    <button id="voice-btn" class="voice-btn" title="बोलें | Speak">
+                        🎤
+                    </button>
+                    <input 
+                        type="text" 
+                        id="user-input" 
+                        class="user-input" 
+                        placeholder="यहाँ टाइप करें या माइक बटन दबाएं | Type here or press mic..."
+                        autocomplete="off"
+                    >
+                    <button id="send-btn" class="send-btn" title="भेजें | Send">
+                        ➤
+                    </button>
+                </div>
+                <div class="input-hint">
+                    💡 उदाहरण: "टमाटर की बीमारी", "KCC loan", "emergency", "calculate 250 + 150"
+                </div>
+            </div>
+
+            <!-- Audio Player (hidden) -->
+            <audio id="audio-player" style="display: none;"></audio>
+        </main>
+
+        <!-- Footer -->
+        <footer>
+            <p>Made with ❤️ for Indian Farmers | भारतीय किसानों के लिए</p>
+            <p class="footer-note">Supports Hindi, English & Hinglish • Offline-ready • Voice-enabled</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
