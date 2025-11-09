@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  vaani-web:
+    build: .
+    container_name: vaani-assistant
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./data:/app/data
+      - ./cache:/app/cache
+      - ./logs:/app/logs
+    environment:
+      - WEATHER_API_KEY=${WEATHER_API_KEY}
+      - GNEWS_API_KEY=${GNEWS_API_KEY}
+      - AGMARKNET_API_KEY=${AGMARKNET_API_KEY}
+    env_file:
+      - .env
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:5000/api/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+networks:
+  default:
+    name: vaani-network
