@@ -1,22 +1,28 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vaani - किसान सहायक | Farmer Assistant</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Vaani - किसान सहायक | Your Farming Assistant</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
         <!-- Header -->
         <header>
             <div class="logo">
-                <h1>🌾 Vaani</h1>
-                <p class="tagline">आपका डिजिटल किसान साथी | Your Digital Farm Companion</p>
+                <div class="logo-icon">🌾</div>
+                <div class="logo-text">
+                    <h1>Vaani</h1>
+                    <p class="tagline">आपका डिजिटल किसान साथी</p>
+                </div>
             </div>
             <div class="status-bar">
-                <span id="connection-status" class="status-badge">🌐 Online</span>
-                <span id="language-status" class="status-badge">🗣️ हिंदी</span>
+                <span id="connection-status" class="status-online">⚡ Live</span>
+                <span id="language-status" class="status-lang">🗣️ हिंदी</span>
             </div>
         </header>
 
@@ -24,88 +30,141 @@
         <main>
             <!-- Chat Display -->
             <div class="chat-container" id="chat-container">
-                <div class="welcome-message">
-                    <h2>नमस्ते! 🙏</h2>
-                    <p>मैं वाणी हूं, आपकी डिजिटल किसान सहायक।</p>
-                    <p>Hello! I'm Vaani, your digital farming assistant.</p>
-                    <br>
+                <div class="welcome-message" id="welcome-message">
+                    <div class="welcome-header">
+                        <div class="welcome-icon">🙏</div>
+                        <h2>नमस्ते! Welcome!</h2>
+                    </div>
+                    <p class="welcome-subtitle">मैं वाणी हूं, आपकी डिजिटल किसान सहायक</p>
+                    <p class="welcome-subtitle-en">I'm Vaani, your digital farming assistant</p>
+                    
                     <div class="feature-grid">
-                        <div class="feature-card">
-                            <span class="feature-icon">🌱</span>
-                            <span>फसल सलाह<br>Crop Advice</span>
+                        <div class="feature-card" onclick="sendQuickQuery('मौसम कैसा है?')">
+                            <div class="feature-icon">�️</div>
+                            <div class="feature-title">मौसम</div>
+                            <div class="feature-subtitle">Weather</div>
                         </div>
-                        <div class="feature-card">
-                            <span class="feature-icon">📰</span>
-                            <span>समाचार<br>News</span>
+                        <div class="feature-card" onclick="sendQuickQuery('ताजा खबरें सुनाओ')">
+                            <div class="feature-icon">📰</div>
+                            <div class="feature-title">समाचार</div>
+                            <div class="feature-subtitle">News</div>
                         </div>
-                        <div class="feature-card">
-                            <span class="feature-icon">💰</span>
-                            <span>योजनाएं<br>Schemes</span>
+                        <div class="feature-card" onclick="sendQuickQuery('सरकारी योजनाएं')">
+                            <div class="feature-icon">💰</div>
+                            <div class="feature-title">योजनाएं</div>
+                            <div class="feature-subtitle">Schemes</div>
                         </div>
-                        <div class="feature-card">
-                            <span class="feature-icon">🌤️</span>
-                            <span>मौसम<br>Weather</span>
+                        <div class="feature-card" onclick="sendQuickQuery('फसल की सलाह')">
+                            <div class="feature-icon">�</div>
+                            <div class="feature-title">खेती</div>
+                            <div class="feature-subtitle">Farming</div>
                         </div>
-                        <div class="feature-card">
-                            <span class="feature-icon">💸</span>
-                            <span>ऋण<br>Loans</span>
+                        <div class="feature-card" onclick="sendQuickQuery('लोन की जानकारी')">
+                            <div class="feature-icon">�</div>
+                            <div class="feature-title">ऋण</div>
+                            <div class="feature-subtitle">Loans</div>
                         </div>
-                        <div class="feature-card">
-                            <span class="feature-icon">🚨</span>
-                            <span>आपातकाल<br>Emergency</span>
+                        <div class="feature-card" onclick="sendQuickQuery('emergency')">
+                            <div class="feature-icon">🚨</div>
+                            <div class="feature-title">आपातकाल</div>
+                            <div class="feature-subtitle">Emergency</div>
                         </div>
+                    </div>
+                    
+                    <div class="voice-prompt">
+                        <div class="pulse-ring"></div>
+                        <p>👇 नीचे माइक बटन दबाएं और बोलें</p>
+                        <p class="voice-prompt-en">Press mic button below and speak</p>
                     </div>
                 </div>
             </div>
 
             <!-- Quick Actions -->
-            <div class="quick-actions">
+            <div class="quick-actions" id="quick-actions">
                 <button class="quick-btn" onclick="sendQuickQuery('आज का मौसम कैसा है?')">
-                    🌤️ मौसम
+                    <span class="quick-icon">🌤️</span>
+                    <span class="quick-text">मौसम<br><small>Weather</small></span>
                 </button>
-                <button class="quick-btn" onclick="sendQuickQuery('PM Kisan के बारे में बताओ')">
-                    💰 योजनाएं
+                <button class="quick-btn" onclick="sendQuickQuery('PM Kisan योजना')">
+                    <span class="quick-icon">💰</span>
+                    <span class="quick-text">योजनाएं<br><small>Schemes</small></span>
                 </button>
-                <button class="quick-btn" onclick="sendQuickQuery('गेहूं की खेती कैसे करें?')">
-                    🌾 फसल सलाह
+                <button class="quick-btn" onclick="sendQuickQuery('गेहूं की खेती')">
+                    <span class="quick-icon">🌾</span>
+                    <span class="quick-text">खेती<br><small>Farming</small></span>
                 </button>
-                <button class="quick-btn" onclick="sendQuickQuery('आज की खबरें सुनाओ')">
-                    📰 समाचार
+                <button class="quick-btn" onclick="sendQuickQuery('ताजा खबरें')">
+                    <span class="quick-icon">📰</span>
+                    <span class="quick-text">खबरें<br><small>News</small></span>
                 </button>
             </div>
 
             <!-- Input Area -->
             <div class="input-area">
-                <div class="input-group">
-                    <button id="voice-btn" class="voice-btn" title="बोलें | Speak">
-                        🎤
+                <div class="voice-section">
+                    <button id="voice-btn" class="voice-btn-large" title="बोलें | Speak">
+                        <div class="mic-icon">🎤</div>
+                        <div class="mic-text">
+                            <span class="mic-main">यहाँ दबाएं और बोलें</span>
+                            <span class="mic-sub">Press & Speak</span>
+                        </div>
                     </button>
-                    <input 
-                        type="text" 
-                        id="user-input" 
-                        class="user-input" 
-                        placeholder="यहाँ टाइप करें या माइक बटन दबाएं | Type here or press mic..."
-                        autocomplete="off"
-                    >
-                    <button id="send-btn" class="send-btn" title="भेजें | Send">
-                        ➤
-                    </button>
+                    <div id="listening-indicator" class="listening-indicator hidden">
+                        <div class="sound-wave">
+                            <span></span><span></span><span></span><span></span><span></span>
+                        </div>
+                        <p>सुन रहा हूँ... | Listening...</p>
+                    </div>
                 </div>
-                <div class="input-hint">
-                    💡 उदाहरण: "टमाटर की बीमारी", "KCC loan", "emergency", "calculate 250 + 150"
+                
+                <div class="divider">
+                    <span>या | OR</span>
+                </div>
+                
+                <div class="text-input-section">
+                    <div class="input-group">
+                        <input 
+                            type="text" 
+                            id="user-input" 
+                            class="user-input" 
+                            placeholder="यहाँ टाइप करें... | Type here..."
+                            autocomplete="off"
+                        >
+                        <button id="send-btn" class="send-btn" title="भेजें | Send">
+                            <span class="send-icon">➤</span>
+                        </button>
+                    </div>
+                    <div class="input-examples">
+                        <small>💡 जैसे: "टमाटर की बीमारी", "KCC loan", "मौसम", "emergency"</small>
+                    </div>
                 </div>
             </div>
 
             <!-- Audio Player (hidden) -->
             <audio id="audio-player" style="display: none;"></audio>
+            
+            <!-- Loading Overlay -->
+            <div id="loading-overlay" class="loading-overlay hidden">
+                <div class="loading-spinner"></div>
+                <p>प्रतीक्षा करें... | Please wait...</p>
+            </div>
         </main>
 
         <!-- Footer -->
         <footer>
-            <p>Made with ❤️ for Indian Farmers | भारतीय किसानों के लिए</p>
-            <p class="footer-note">Supports Hindi, English & Hinglish • Offline-ready • Voice-enabled</p>
+            <div class="footer-content">
+                <p class="footer-main">❤️ भारतीय किसानों के लिए बनाया गया | Made for Indian Farmers</p>
+                <div class="footer-features">
+                    <span>✓ हिंदी और English</span>
+                    <span>✓ आवाज़ से बोलें</span>
+                    <span>✓ मुफ्त सेवा</span>
+                </div>
+            </div>
         </footer>
     </div>
+    
+    <!-- Notification Toast -->
+    <div id="toast" class="toast hidden"></div>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
