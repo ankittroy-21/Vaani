@@ -1,9 +1,58 @@
+# Python
 __pycache__/
 *.pyc
-temp_audio.mp3
-.env
-.venv
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
 
+# Virtual Environment
+.venv/
+venv/
+ENV/
+env/
+
+# Environment Variables
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Audio files
+temp_audio.mp3
+cache/*.mp3
+
+# FFmpeg
 ffmpeg/
+
+# Offline cache
 offline_cache/
+
+# Logs
 *.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Data (keep structure, ignore generated files)
+data/expense_data/*.json
+!data/expense_data/.gitkeep
+
+# Test coverage
+.coverage
+htmlcov/
+
+# Temporary files
+*.tmp
+*.temp
+
