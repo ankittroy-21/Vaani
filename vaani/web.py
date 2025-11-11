@@ -14,6 +14,9 @@ from datetime import datetime
 import hashlib
 import time
 import glob
+import threading
+import requests
+from urllib.parse import urlparse
 
 # Fix Unicode encoding for Windows console
 if sys.platform == 'win32':
@@ -54,6 +57,11 @@ offline_mgr = OfflineMode()
 
 # Session storage (in production, use Redis or database)
 user_sessions = {}
+
+# Keep-alive configuration for Render free tier
+KEEP_ALIVE_INTERVAL = 14 * 60  # 14 minutes (just under 15 min timeout)
+KEEP_ALIVE_ENABLED = os.getenv('KEEP_ALIVE_ENABLED', 'true').lower() == 'true'
+RENDER_EXTERNAL_URL = os.getenv('RENDER_EXTERNAL_URL', '')  # Set by Render automatically
 
 def cleanup_old_audio_files(max_age_minutes=30, max_files=50):
     """
@@ -136,6 +144,47 @@ def cleanup_old_audio_files(max_age_minutes=30, max_files=50):
         print(f"[Audio Cleanup Error]: {e}")
         import traceback
         traceback.print_exc()
+
+def keep_alive_ping():
+    """
+    Keep-alive function to prevent Render free tier from spinning down.
+    Pings the service every 14 minutes to keep it active.
+    """
+    while True:
+        try:
+            time.sleep(KEEP_ALIVE_INTERVAL)
+            
+            # Determine the URL to ping
+            if RENDER_EXTERNAL_URL:
+                url = f"{RENDER_EXTERNAL_URL}/api/health"
+            else:
+                url = "http://localhost:5000/api/health"
+            
+            print(f"\n[Keep-Alive] Pinging service at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+            response = requests.get(url, timeout=10)
+            
+            if response.status_code == 200:
+                print(f"[Keep-Alive] ✅ Ping successful - Service is alive")
+            else:
+                print(f"[Keep-Alive] ⚠️ Ping returned status {response.status_code}")
+                
+        except Exception as e:
+            print(f"[Keep-Alive] ❌ Ping failed: {e}")
+
+def start_keep_alive():
+    """Start the keep-alive background thread"""
+    if KEEP_ALIVE_ENABLED and (RENDER_EXTERNAL_URL or os.getenv('RENDER')):
+        print("\n" + "="*60)
+        print("🔄 Keep-Alive Service Starting...")
+        print(f"   Interval: {KEEP_ALIVE_INTERVAL // 60} minutes")
+        print(f"   Target URL: {RENDER_EXTERNAL_URL or 'http://localhost:5000'}")
+        print("="*60 + "\n")
+        
+        keep_alive_thread = threading.Thread(target=keep_alive_ping, daemon=True)
+        keep_alive_thread.start()
+    else:
+        print("\n[Keep-Alive] Disabled (not running on Render or manually disabled)")
+
 
 def get_user_id():
     """Generate a simple user ID based on session"""
@@ -572,7 +621,7 @@ def greeting():
 
 if __name__ == '__main__':
     # Create required directories
-    for directory in ["data/expense_data", "data/offline_cache", "cache"]:
+    for directory in ["data/expense_data", "data/offline_cache", "cache", "logs"]:
         os.makedirs(directory, exist_ok=True)
     
     print("=" * 60)
@@ -584,8 +633,18 @@ if __name__ == '__main__':
     print("\n🧹 Running startup cleanup...")
     cleanup_old_audio_files(max_age_minutes=30, max_files=50)
     print(f"Online: {'Yes' if offline_mgr.is_online() else 'No (Offline Mode)'}")
+    
+    # Start keep-alive service for Render
+    start_keep_alive()
+    
     print("=" * 60)
-    print("\n🌐 Open your browser and go to: http://localhost:5000")
+    port = int(os.getenv('PORT', 5000))
+    host = os.getenv('HOST', '0.0.0.0')
+    debug = os.getenv('DEBUG', 'False').lower() == 'true'
+    
+    print(f"\n🌐 Starting server on {host}:{port}")
+    if not os.getenv('RENDER'):
+        print(f"🌐 Open your browser and go to: http://localhost:{port}")
     print("=" * 60)
     
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host=host, port=port, debug=debug)
