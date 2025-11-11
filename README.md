@@ -4,6 +4,8 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![SDG Goals](https://img.shields.io/badge/SDG-8%20Goals%20Aligned-green.svg)](https://sdgs.un.org/goals)
 
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/groupnumber-9/Vaani)
+
 **College Minor Project | Democratizing Digital Access Through Voice**
 
 Vaani is India's first voice-first digital inclusion platform designed for **300+ million functionally illiterate Indians** - eliminating literacy as a barrier to digital services. While agriculture was our entry point, Vaani serves all underserved populations: **farmers (146M), elderly citizens (104M), disabled persons (27M), domestic workers (50M), daily wage workers (139M), women in conservative families (80M), and millions more** excluded from India's digital revolution.
@@ -179,13 +181,17 @@ vaani/
 
 ---
 
-## � Deployment
+## 🚀 Deployment
 
 ### Deploy to Render (Free Tier)
 
 Deploy Vaani to the cloud in minutes with automatic keep-alive!
 
-**Quick Deploy:**
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/groupnumber-9/Vaani)
+
+**One-Click Deploy:** Click the button above to deploy directly to Render!
+
+**Manual Deploy:**
 ```bash
 # 1. Verify project
 python verify_render_deployment.py
