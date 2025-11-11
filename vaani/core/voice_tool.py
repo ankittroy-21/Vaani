@@ -231,13 +231,18 @@ def text_to_speech_file(text, lang='hi', output_dir='cache'):
     - Path to the generated audio file, or None if failed
     """
     if not text or not text.strip():
+        print("[Audio] Empty text, skipping audio generation")
         return None
+    
+    # Warn if text is very long
+    if len(text) > 2000:
+        print(f"[Audio Warning] Text is very long ({len(text)} chars), audio generation may fail or take time")
     
     try:
         # Create output directory if it doesn't exist
         os.makedirs(output_dir, exist_ok=True)
         
-        # Generate unique filename
+        # Generate unique filename based on text content
         import hashlib
         text_hash = hashlib.md5(text.encode()).hexdigest()[:12]
         filename = f"audio_{text_hash}.mp3"
@@ -245,15 +250,37 @@ def text_to_speech_file(text, lang='hi', output_dir='cache'):
         
         # Check if file already exists (cache)
         if os.path.exists(filepath):
+            print(f"[Audio] Using cached file: {filename}")
             return filepath
         
-        # Generate speech with gTTS
-        tts = gTTS(text=text, lang=lang, slow=False)
-        tts.save(filepath)
+        print(f"[Audio] Generating new audio file: {filename}")
+        print(f"[Audio] Text length: {len(text)} chars")
+        print(f"[Audio] Language: {lang}")
         
-        return filepath
+        # Generate speech with gTTS (requires internet)
+        try:
+            tts = gTTS(text=text, lang=lang, slow=False)
+            tts.save(filepath)
+            
+            # Verify file was created
+            if os.path.exists(filepath) and os.path.getsize(filepath) > 0:
+                print(f"[Audio] Successfully generated: {filename} ({os.path.getsize(filepath)} bytes)")
+                return filepath
+            else:
+                print(f"[Audio Error] File created but is empty or missing")
+                return None
+                
+        except Exception as gtts_error:
+            print(f"[Audio Error] gTTS failed: {gtts_error}")
+            # Check if it's a network issue
+            if "Connection" in str(gtts_error) or "Network" in str(gtts_error):
+                print("[Audio Error] Network issue detected. Please check your internet connection.")
+            return None
+        
     except Exception as e:
-        print(f"Error generating audio file: {e}")
+        print(f"[Audio Error] Failed to generate audio: {e}")
+        import traceback
+        traceback.print_exc()
         return None
 
 # Create alias for backward compatibility
