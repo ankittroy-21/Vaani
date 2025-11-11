@@ -1,8 +1,42 @@
 # api_key_manager.py (OPTIONAL enhancement)
 import os
+import sys
 
 def setup_api_keys():
+    """
+    Setup API keys from environment variables or .env file.
+    In production (Render), uses environment variables.
+    In development, can create .env file interactively.
+    """
+    # Check if running in production (non-interactive environment)
+    is_production = not sys.stdin.isatty() or os.getenv('RENDER') or os.getenv('RAILWAY_ENVIRONMENT')
+    
+    # If in production, environment variables should be set by the platform
+    if is_production:
+        print("🔑 Running in production mode - using environment variables")
+        
+        # Verify required API keys are set
+        required_keys = ['WEATHER_API_KEY', 'GNEWS_API_KEY']
+        missing_keys = [key for key in required_keys if not os.getenv(key)]
+        
+        if missing_keys:
+            print(f"⚠️ WARNING: Missing API keys: {', '.join(missing_keys)}")
+            print("   Set these as environment variables in your Render dashboard")
+            print("   The app will continue but some features may not work.")
+        else:
+            print("✅ All required API keys found")
+        
+        # Optional keys
+        if os.getenv('GEMINI_API_KEY'):
+            print("✅ Gemini API enabled")
+        else:
+            print("⚠️ Gemini API not configured (optional)")
+            
+        return
+    
+    # Development mode - interactive setup
     if os.path.exists('.env'):
+        print("✅ Using existing .env file")
         return
 
     print("--- API Key Setup ---")
