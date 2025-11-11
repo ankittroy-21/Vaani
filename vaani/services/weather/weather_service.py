@@ -14,6 +14,10 @@ def _parse_location(command):
         Config.weather_temperature +
         Config.weather_wind
     )
+    # Remove common words that might interfere with location detection
+    common_words = {"का", "की", "के", "में", "से", "को", "और", "है", "हैं", "बताओ", "बताइए", "सुनाओ", "कैसा"}
+    all_words_to_remove.update(common_words)
+    
     command_words = command.split()
     location_words = [word for word in command_words if word not in all_words_to_remove]
     location = " ".join(location_words)

@@ -2,6 +2,7 @@ __pycache__/
 *.pyc
 temp_audio.mp3
 .env
+.venv
 
 ffmpeg/
 offline_cache/
