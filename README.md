@@ -179,7 +179,42 @@ vaani/
 
 ---
 
-## 🛠️ Built With
+## � Deployment
+
+### Deploy to Render (Free Tier)
+
+Deploy Vaani to the cloud in minutes with automatic keep-alive!
+
+**Quick Deploy:**
+```bash
+# 1. Verify project
+python verify_render_deployment.py
+
+# 2. Push to GitHub
+git push origin main
+
+# 3. Deploy on Render
+# Visit https://dashboard.render.com
+# Connect your GitHub repo
+# Render auto-detects configuration!
+```
+
+**Features:**
+- ✅ **Keep-Alive**: Auto-ping every 14 minutes (stays active 24/7)
+- ✅ **Auto-Deploy**: Push to GitHub, automatic deployment
+- ✅ **Free SSL**: HTTPS enabled automatically
+- ✅ **Zero Config**: Works out of the box
+
+**Documentation:**
+- 📖 [Quick Start Guide](RENDER_QUICKSTART.md) - Deploy in 5 minutes
+- 📚 [Full Deployment Guide](RENDER_DEPLOYMENT_GUIDE.md) - Complete documentation
+- 🔧 [Verification Script](verify_render_deployment.py) - Test before deploying
+
+**Your app will be live at:** `https://your-app-name.onrender.com`
+
+---
+
+## �🛠️ Built With
 
 ### Core Technologies
 * **Python** 3.8+ (3.10+ recommended)
