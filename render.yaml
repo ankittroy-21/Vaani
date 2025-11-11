@@ -1,0 +1,30 @@
+services:
+  # Main web service
+  - type: web
+    name: vaani-web
+    env: python
+    region: oregon
+    plan: free
+    branch: main
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m vaani.web
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10.0
+      - key: FLASK_APP
+        value: vaani.web
+      - key: PYTHONUNBUFFERED
+        value: 1
+      - key: PORT
+        value: 5000
+      # Add your API keys in Render dashboard
+      - key: WEATHER_API_KEY
+        sync: false
+      - key: GNEWS_API_KEY
+        sync: false
+      - key: AGMARKNET_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+    healthCheckPath: /api/health
+    autoDeploy: true
