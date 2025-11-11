@@ -3,110 +3,371 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vaani - किसान सहायक | Farmer Assistant</title>
+    <title>Vaani - Your Voice Assistant</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <div class="container">
-        <!-- Header -->
-        <header>
-            <div class="logo">
-                <h1>🌾 Vaani</h1>
-                <p class="tagline">आपका डिजिटल किसान साथी | Your Digital Farm Companion</p>
-            </div>
-            <div class="status-bar">
-                <span id="connection-status" class="status-badge">🌐 Online</span>
-                <span id="language-status" class="status-badge">🗣️ हिंदी</span>
-            </div>
-        </header>
+    <!-- Status Indicator -->
+    <div class="status-indicator" id="status-indicator">
+        🟢 Online
+    </div>
+    
+    <div class="main-container">
+        <!-- Left Sidebar for History -->
+        <div class="sidebar">
+            <h2>History</h2>
+            <ul id="history-list">
+                <!-- History items will be dynamically added here -->
+            </ul>
+        </div>
 
-        <!-- Main Content Area -->
-        <main>
-            <!-- Chat Display -->
-            <div class="chat-container" id="chat-container">
-                <div class="welcome-message">
-                    <h2>नमस्ते! 🙏</h2>
-                    <p>मैं वाणी हूं, आपकी डिजिटल किसान सहायक।</p>
-                    <p>Hello! I'm Vaani, your digital farming assistant.</p>
-                    <br>
-                    <div class="feature-grid">
-                        <div class="feature-card">
-                            <span class="feature-icon">🌱</span>
-                            <span>फसल सलाह<br>Crop Advice</span>
-                        </div>
-                        <div class="feature-card">
-                            <span class="feature-icon">📰</span>
-                            <span>समाचार<br>News</span>
-                        </div>
-                        <div class="feature-card">
-                            <span class="feature-icon">💰</span>
-                            <span>योजनाएं<br>Schemes</span>
-                        </div>
-                        <div class="feature-card">
-                            <span class="feature-icon">🌤️</span>
-                            <span>मौसम<br>Weather</span>
-                        </div>
-                        <div class="feature-card">
-                            <span class="feature-icon">💸</span>
-                            <span>ऋण<br>Loans</span>
-                        </div>
-                        <div class="feature-card">
-                            <span class="feature-icon">🚨</span>
-                            <span>आपातकाल<br>Emergency</span>
-                        </div>
-                    </div>
+        <!-- Main Content -->
+        <div class="content">
+            <!-- Heading -->
+            <header>
+                <h1>Vaani - Your Voice Assistant</h1>
+                <p style="font-size: 0.9rem; color: #666;">वाणी - आपका आवाज सहायक</p>
+            </header>
+
+            <!-- Add a line above the microphone -->
+            <div class="help-text">
+                
+                <p>मैं आपकी क्या मदद कर सकता हूं?</p>
+            </div>
+
+            <!-- Existing microphone section -->
+            <div class="mic-section">
+                <button id="mic-btn" class="mic-btn" title="Tap to Speak">
+                    🎤
+                </button>
+                <p class="mic-instruction">Tap the mic and speak</p>
+            </div>
+
+            <!-- Add a search box below the microphone -->
+            <div class="search-box">
+                <input type="text" id="search-input" class="search-input" placeholder="Ask anything...">
+            </div>
+
+            <!-- Response display area -->
+            <div id="response-area" class="response-area" style="display: none;">
+                <div class="response-content">
+                    <p id="response-text"></p>
+                    <!-- Audio player for responses -->
+                    <audio id="audio-player" controls style="display: none; width: 100%; margin-top: 15px;"></audio>
                 </div>
             </div>
 
-            <!-- Quick Actions -->
+            <!-- Quick Action Icons -->
             <div class="quick-actions">
-                <button class="quick-btn" onclick="sendQuickQuery('आज का मौसम कैसा है?')">
-                    🌤️ मौसम
-                </button>
-                <button class="quick-btn" onclick="sendQuickQuery('PM Kisan के बारे में बताओ')">
-                    💰 योजनाएं
-                </button>
-                <button class="quick-btn" onclick="sendQuickQuery('गेहूं की खेती कैसे करें?')">
-                    🌾 फसल सलाह
-                </button>
-                <button class="quick-btn" onclick="sendQuickQuery('आज की खबरें सुनाओ')">
-                    📰 समाचार
-                </button>
-            </div>
-
-            <!-- Input Area -->
-            <div class="input-area">
-                <div class="input-group">
-                    <button id="voice-btn" class="voice-btn" title="बोलें | Speak">
-                        🎤
-                    </button>
-                    <input 
-                        type="text" 
-                        id="user-input" 
-                        class="user-input" 
-                        placeholder="यहाँ टाइप करें या माइक बटन दबाएं | Type here or press mic..."
-                        autocomplete="off"
-                    >
-                    <button id="send-btn" class="send-btn" title="भेजें | Send">
-                        ➤
-                    </button>
+                <div class="action-card" onclick="sendQuickQuery('Weather')">
+                    🌤️
+                    <p>Weather</p>
+                    <small>मौसम</small>
                 </div>
-                <div class="input-hint">
-                    💡 उदाहरण: "टमाटर की बीमारी", "KCC loan", "emergency", "calculate 250 + 150"
+                <div class="action-card" onclick="sendQuickQuery('News')">
+                    📰
+                    <p>News</p>
+                    <small>समाचार</small>
+                </div>
+                <div class="action-card" onclick="sendQuickQuery('Schemes')">
+                    💰
+                    <p>Schemes</p>
+                    <small>योजनाएं</small>
+                </div>
+                <div class="action-card" onclick="sendQuickQuery('Emergency')">
+                    🚨
+                    <p>Emergency</p>
+                    <small>आपातकाल</small>
                 </div>
             </div>
-
-            <!-- Audio Player (hidden) -->
-            <audio id="audio-player" style="display: none;"></audio>
-        </main>
-
-        <!-- Footer -->
-        <footer>
-            <p>Made with ❤️ for Indian Farmers | भारतीय किसानों के लिए</p>
-            <p class="footer-note">Supports Hindi, English & Hinglish • Offline-ready • Voice-enabled</p>
-        </footer>
+        </div>
     </div>
 
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script>
+        let sessionId = 'user_' + Date.now(); // Generate unique session ID
+        let isFirstMicClick = true; // Track first mic click
+        
+        // Test API connection on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('Page loaded, session ID:', sessionId);
+            
+            // Check API status
+            fetch('/api/status')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('API Status:', data);
+                    updateStatusIndicator(data.online);
+                })
+                .catch(error => {
+                    console.error('API Status check failed:', error);
+                    updateStatusIndicator(false);
+                });
+            
+            fetch('/api/test')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('API Test Success:', data);
+                })
+                .catch(error => {
+                    console.error('API Test Failed:', error);
+                    alert('Warning: Could not connect to backend API. Please check if the server is running.');
+                });
+        });
+        
+        // Update status indicator
+        function updateStatusIndicator(isOnline) {
+            const indicator = document.getElementById('status-indicator');
+            if (isOnline) {
+                indicator.textContent = '🟢 Online';
+                indicator.classList.remove('offline');
+            } else {
+                indicator.textContent = '🔴 Offline Mode';
+                indicator.classList.add('offline');
+            }
+        }
+
+        // Handle microphone button click
+        document.getElementById('mic-btn').addEventListener('click', () => {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                alert('Speech recognition not supported in your browser. Please use Chrome or Edge.');
+                return;
+            }
+            
+            // Show greeting on first mic click
+            if (isFirstMicClick) {
+                console.log('First mic click - showing greeting');
+                isFirstMicClick = false;
+                
+                // Show greeting immediately
+                const greeting = "नमस्ते! मैं वाणी हूं, आपकी आवाज सहायक। आप मुझसे मौसम, समाचार, सरकारी योजनाएं और बहुत कुछ पूछ सकते हैं।";
+                showGreeting(greeting);
+                
+                // Fetch greeting with audio
+                fetch('/api/greeting')
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Greeting response:', data);
+                        if (data.success && data.audio_file) {
+                            console.log('Playing greeting audio:', data.audio_file);
+                            playAudioResponse(data.audio_file);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching greeting:', error);
+                    });
+                
+                // Wait for greeting to play, then start recognition
+                setTimeout(() => {
+                    console.log('Starting voice recognition after greeting...');
+                    startVoiceRecognition();
+                }, 3000);
+                
+                return;
+            }
+            
+            startVoiceRecognition();
+        });
+        
+        function startVoiceRecognition() {
+            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            
+            // Support both Hindi and English
+            recognition.lang = 'hi-IN'; // Default to Hindi
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+            
+            // Visual feedback
+            const micBtn = document.getElementById('mic-btn');
+            micBtn.style.backgroundColor = '#ff4444';
+            micBtn.textContent = '🔴';
+            
+            recognition.start();
+            console.log('Speech recognition started');
+
+            recognition.onresult = (event) => {
+                const query = event.results[0][0].transcript;
+                console.log('Voice input received:', query);
+                addToHistory(query);
+                sendQueryToBackend(query);
+                
+                // Reset button
+                micBtn.style.backgroundColor = '#4CAF50';
+                micBtn.textContent = '🎤';
+            };
+
+            recognition.onerror = (event) => {
+                console.error('Speech recognition error:', event.error);
+                alert('Error capturing voice: ' + event.error);
+                
+                // Reset button
+                micBtn.style.backgroundColor = '#4CAF50';
+                micBtn.textContent = '🎤';
+            };
+            
+            recognition.onend = () => {
+                console.log('Speech recognition ended');
+                // Reset button
+                micBtn.style.backgroundColor = '#4CAF50';
+                micBtn.textContent = '🎤';
+            };
+        }
+        
+        function showGreeting(text) {
+            const responseArea = document.getElementById('response-area');
+            const responseText = document.getElementById('response-text');
+            responseArea.style.display = 'block';
+            responseText.innerHTML = '<div style="text-align: center; color: #4CAF50;"><h3>🙏 स्वागत है!</h3><p>' + text + '</p></div>';
+        }
+
+        // Handle search input - Enter key press
+        document.getElementById('search-input').addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                const query = event.target.value.trim();
+                if (query) {
+                    console.log('Text input received:', query);
+                    addToHistory(query);
+                    sendQueryToBackend(query);
+                    event.target.value = ''; // Clear input after sending
+                }
+            }
+        });
+
+        // Add query to history
+        function addToHistory(query) {
+            const historyList = document.getElementById('history-list');
+            const listItem = document.createElement('li');
+            listItem.textContent = query;
+            listItem.onclick = () => {
+                console.log('Replaying query:', query);
+                sendQueryToBackend(query);
+            };
+            historyList.insertBefore(listItem, historyList.firstChild); // Add to top
+            
+            // Limit history to 20 items
+            if (historyList.children.length > 20) {
+                historyList.removeChild(historyList.lastChild);
+            }
+        }
+
+        // Send query to backend
+        function sendQueryToBackend(query) {
+            console.log('Sending query to backend:', query);
+            
+            // Show loading state
+            const responseArea = document.getElementById('response-area');
+            const responseText = document.getElementById('response-text');
+            responseArea.style.display = 'block';
+            responseText.innerHTML = '<div style="text-align: center;"><div class="spinner"></div><p>आपके सवाल का जवाब तैयार किया जा रहा है...</p></div>';
+
+            fetch('/api/query', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ 
+                    query: query, 
+                    session_id: sessionId 
+                })
+            })
+            .then(response => {
+                console.log('Response status:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Response from backend:', data);
+                
+                if (data.success) {
+                    // Format response text with line breaks
+                    const formattedText = data.text.replace(/\n/g, '<br>');
+                    responseText.innerHTML = formattedText;
+                    
+                    // Play audio if available
+                    if (data.audio_file) {
+                        playAudioResponse(data.audio_file);
+                    }
+                    
+                    // Show waiting message if waiting for news selection
+                    if (data.waiting_for_news) {
+                        responseText.innerHTML += '<br><br><em>कृपया खबर का नंबर बोलें या लिखें...</em>';
+                    }
+                } else {
+                    responseText.innerHTML = '<div style="color: #d32f2f;">❌ Error: ' + (data.message || data.text || 'Unknown error occurred') + '</div>';
+                }
+            })
+            .catch(error => {
+                console.error('Error communicating with server:', error);
+                responseText.innerHTML = '<div style="color: #d32f2f;">❌ Error communicating with server: ' + error.message + '<br><br>Please check if the server is running.</div>';
+            });
+        }
+
+        // Play audio response
+        function playAudioResponse(audioFile) {
+            if (audioFile) {
+                console.log('Attempting to play audio:', audioFile);
+                const audioPlayer = document.getElementById('audio-player');
+                
+                // Reset player
+                audioPlayer.pause();
+                audioPlayer.currentTime = 0;
+                
+                // Set new source
+                audioPlayer.src = audioFile;
+                audioPlayer.style.display = 'block';
+                
+                // Add cache buster to force reload
+                const cacheBuster = '?t=' + new Date().getTime();
+                audioPlayer.src = audioFile + cacheBuster;
+                
+                // Load and play
+                audioPlayer.load();
+                
+                // Attempt to play
+                const playPromise = audioPlayer.play();
+                
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        console.log('✅ Audio playback started successfully');
+                    }).catch(error => {
+                        console.error('❌ Audio playback error:', error);
+                        console.log('Audio file URL:', audioFile);
+                        
+                        // Show error to user
+                        alert('Audio playback failed. Error: ' + error.message + '\nPlease check browser console.');
+                    });
+                }
+            } else {
+                console.warn('No audio file provided');
+            }
+        }
+
+        // Quick action functions
+        function sendQuickQuery(actionType) {
+            let query = '';
+            
+            switch(actionType) {
+                case 'Weather':
+                    query = 'मौसम कैसा है';
+                    break;
+                case 'News':
+                    query = 'आज की खबरें बताओ';
+                    break;
+                case 'Schemes':
+                    query = 'सरकारी योजनाएं बताओ';
+                    break;
+                case 'Emergency':
+                    query = 'आपातकालीन सहायता चाहिए';
+                    break;
+                default:
+                    query = actionType;
+            }
+            
+            console.log('Quick action:', actionType, '-> Query:', query);
+            addToHistory(query);
+            sendQueryToBackend(query);
+        }
+    </script>
 </body>
 </html>
