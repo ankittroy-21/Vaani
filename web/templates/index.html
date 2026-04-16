@@ -16,82 +16,87 @@
         <!-- Left Sidebar for History -->
         <div class="sidebar">
             <h2>History</h2>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
             <ul id="history-list">
                 <!-- History items will be dynamically added here -->
             </ul>
-        </div>
+        <div class="page-bg"></div>
+        <div class="ambient ambient-one"></div>
+        <div class="ambient ambient-two"></div>
 
-        <!-- Main Content -->
-        <div class="content">
-            <!-- Heading -->
-            <header>
-                <h1>Vaani - Your Voice Assistant</h1>
-                <p style="font-size: 0.9rem; color: #666;">वाणी - आपका आवाज सहायक</p>
+        <div class="app-shell">
+            <header class="topbar reveal">
+                <div class="brand">
+                    <span class="sparkle">✦</span>
+                    <span class="brand-title">VAANI</span>
+                    <span class="brand-subtitle">Voice Intelligence Workspace</span>
+                </div>
+                <div class="status-indicator" id="status-indicator">
+                    Online
+                </div>
             </header>
 
-            <!-- Add a line above the microphone -->
-            <div class="help-text">
-                
-                <p>मैं आपकी क्या मदद कर सकता हूं?</p>
-            </div>
+            <main class="layout">
+                <section class="assistant-stage reveal">
+                    <p class="kicker">वाणी • आपका स्मार्ट आवाज सहायक</p>
+                    <h1>One voice command.<br>Everything starts here.</h1>
+                    <p class="lead">Ask naturally in Hindi or English. Get instant answers with voice-ready responses.</p>
 
-            <!-- Existing microphone section -->
-            <div class="mic-section">
-                <button id="mic-btn" class="mic-btn" title="Tap to Speak">
-                    🎤
-                </button>
-                <p class="mic-instruction">Tap the mic and speak</p>
-            </div>
+                    <div class="command-surface reveal">
+                        <div class="help-text">
+                            <p>मैं आपकी क्या मदद कर सकता हूं?</p>
+                        </div>
 
-            <!-- Add a search box below the microphone -->
-            <div class="search-box">
-                <input type="text" id="search-input" class="search-input" placeholder="Ask anything...">
-            </div>
+                        <div class="input-shell">
+                            <input type="text" id="search-input" class="search-input" placeholder="Ask Vaani anything...">
+                            <button id="send-btn" class="send-btn" type="button">Ask Vaani</button>
+                        </div>
 
-            <!-- Response display area -->
-            <div id="response-area" class="response-area" style="display: none;">
-                <div class="response-content">
-                    <p id="response-text"></p>
-                    <!-- Audio player for responses -->
-                    <audio id="audio-player" controls style="display: none; width: 100%; margin-top: 15px;"></audio>
-                </div>
-            </div>
+                        <div class="voice-row">
+                            <button id="mic-btn" class="mic-btn" title="Tap to Speak" aria-label="Start voice input">🎤</button>
+                            <p id="mic-instruction" class="mic-instruction">Tap to speak</p>
+                        </div>
+                    </div>
 
-            <!-- Quick Action Icons -->
-            <div class="quick-actions">
-                <div class="action-card" onclick="sendQuickQuery('Weather')">
-                    🌤️
-                    <p>Weather</p>
-                    <small>मौसम</small>
-                </div>
-                <div class="action-card" onclick="sendQuickQuery('News')">
-                    📰
-                    <p>News</p>
-                    <small>समाचार</small>
-                </div>
-                <div class="action-card" onclick="sendQuickQuery('Schemes')">
-                    💰
-                    <p>Schemes</p>
-                    <small>योजनाएं</small>
-                </div>
-                <div class="action-card" onclick="sendQuickQuery('Emergency')">
-                    🚨
-                    <p>Emergency</p>
-                    <small>आपातकाल</small>
-                </div>
-            </div>
-        </div>
-    </div>
+                    <div class="quick-actions reveal">
+                        <button class="action-card" onclick="sendQuickQuery('Weather')">
+                            <span class="action-icon">🌤️</span>
+                            <span>Weather</span>
+                            <small>मौसम</small>
+                        </button>
+                        <button class="action-card" onclick="sendQuickQuery('News')">
+                            <span class="action-icon">📰</span>
+                            <span>News</span>
+                            <small>समाचार</small>
+                        </button>
+                        <button class="action-card" onclick="sendQuickQuery('Schemes')">
+                            <span class="action-icon">💰</span>
+                            <span>Schemes</span>
+                            <small>योजनाएं</small>
+                        </button>
+                        <button class="action-card" onclick="sendQuickQuery('Emergency')">
+                            <span class="action-icon">🚨</span>
+                            <span>Emergency</span>
+                            <small>आपातकाल</small>
+                        </button>
+                    </div>
 
-    <script>
-        let sessionId = 'user_' + Date.now(); // Generate unique session ID
-        let isFirstMicClick = true; // Track first mic click
-        
-        // Test API connection on page load
-        window.addEventListener('DOMContentLoaded', () => {
-            console.log('Page loaded, session ID:', sessionId);
-            
-            // Check API status
+                    <div id="response-area" class="response-area" style="display: none;">
+                        <div class="response-content">
+                            <p id="response-text"></p>
+                            <audio id="audio-player" controls style="display: none;"></audio>
+                        </div>
+                    </div>
+                </section>
+
+                <aside class="history-panel reveal">
+                    <h2>Recent Prompts</h2>
+                    <p>Tap an item to replay instantly.</p>
+                    <ul id="history-list"></ul>
+                </aside>
+            </main>
             fetch('/api/status')
                 .then(response => response.json())
                 .then(data => {
@@ -118,11 +123,25 @@
         function updateStatusIndicator(isOnline) {
             const indicator = document.getElementById('status-indicator');
             if (isOnline) {
-                indicator.textContent = '🟢 Online';
+                indicator.textContent = 'Online';
                 indicator.classList.remove('offline');
             } else {
-                indicator.textContent = '🔴 Offline Mode';
+                indicator.textContent = 'Offline Mode';
                 indicator.classList.add('offline');
+            }
+        }
+
+        function setMicListening(isListening) {
+            const micBtn = document.getElementById('mic-btn');
+            const micInstruction = document.getElementById('mic-instruction');
+            if (isListening) {
+                micBtn.classList.add('listening');
+                micBtn.textContent = '●';
+                micInstruction.textContent = 'Listening...';
+            } else {
+                micBtn.classList.remove('listening');
+                micBtn.textContent = '🎤';
+                micInstruction.textContent = 'Tap to speak';
             }
         }
 
@@ -176,10 +195,7 @@
             recognition.interimResults = false;
             recognition.maxAlternatives = 1;
             
-            // Visual feedback
-            const micBtn = document.getElementById('mic-btn');
-            micBtn.style.backgroundColor = '#ff4444';
-            micBtn.textContent = '🔴';
+            setMicListening(true);
             
             recognition.start();
             console.log('Speech recognition started');
@@ -189,26 +205,20 @@
                 console.log('Voice input received:', query);
                 addToHistory(query);
                 sendQueryToBackend(query);
-                
-                // Reset button
-                micBtn.style.backgroundColor = '#4CAF50';
-                micBtn.textContent = '🎤';
+
+                setMicListening(false);
             };
 
             recognition.onerror = (event) => {
                 console.error('Speech recognition error:', event.error);
                 alert('Error capturing voice: ' + event.error);
-                
-                // Reset button
-                micBtn.style.backgroundColor = '#4CAF50';
-                micBtn.textContent = '🎤';
+
+                setMicListening(false);
             };
             
             recognition.onend = () => {
                 console.log('Speech recognition ended');
-                // Reset button
-                micBtn.style.backgroundColor = '#4CAF50';
-                micBtn.textContent = '🎤';
+                setMicListening(false);
             };
         }
         
@@ -216,21 +226,29 @@
             const responseArea = document.getElementById('response-area');
             const responseText = document.getElementById('response-text');
             responseArea.style.display = 'block';
-            responseText.innerHTML = '<div style="text-align: center; color: #4CAF50;"><h3>🙏 स्वागत है!</h3><p>' + text + '</p></div>';
+            responseText.innerHTML = '<div class="welcome-message"><h3>✦ स्वागत है!</h3><p>' + text + '</p></div>';
+        }
+
+        function triggerTextQuery() {
+            const input = document.getElementById('search-input');
+            const query = input.value.trim();
+            if (query) {
+                console.log('Text input received:', query);
+                addToHistory(query);
+                sendQueryToBackend(query);
+                input.value = '';
+            }
         }
 
         // Handle search input - Enter key press
-        document.getElementById('search-input').addEventListener('keypress', (event) => {
+        document.getElementById('search-input').addEventListener('keydown', (event) => {
             if (event.key === 'Enter') {
-                const query = event.target.value.trim();
-                if (query) {
-                    console.log('Text input received:', query);
-                    addToHistory(query);
-                    sendQueryToBackend(query);
-                    event.target.value = ''; // Clear input after sending
-                }
+                event.preventDefault();
+                triggerTextQuery();
             }
         });
+
+        document.getElementById('send-btn').addEventListener('click', triggerTextQuery);
 
         // Add query to history
         function addToHistory(query) {
