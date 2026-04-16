@@ -4,99 +4,94 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vaani - Your Voice Assistant</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <!-- Status Indicator -->
-    <div class="status-indicator" id="status-indicator">
-        🟢 Online
+    <div class="page-bg"></div>
+    <div class="ambient ambient-one"></div>
+    <div class="ambient ambient-two"></div>
+
+    <div class="app-shell">
+        <header class="topbar reveal">
+            <div class="brand">
+                <span class="sparkle">✦</span>
+                <span class="brand-title">VAANI</span>
+                <span class="brand-subtitle">Voice Intelligence Workspace</span>
+            </div>
+            <div class="status-indicator" id="status-indicator">Online</div>
+        </header>
+
+        <main class="layout">
+            <section class="assistant-stage reveal">
+                <p class="kicker">वाणी • आपका स्मार्ट आवाज सहायक</p>
+                <h1>One voice command.<br>Everything starts here.</h1>
+                <p class="lead">Ask naturally in Hindi or English. Get instant answers with voice-ready responses.</p>
+
+                <div class="command-surface reveal">
+                    <div class="help-text">
+                        <p>मैं आपकी क्या मदद कर सकता हूं?</p>
+                    </div>
+
+                    <div class="input-shell">
+                        <input type="text" id="search-input" class="search-input" placeholder="Ask Vaani anything...">
+                        <button id="send-btn" class="send-btn" type="button">Ask Vaani</button>
+                    </div>
+
+                    <div class="voice-row">
+                        <button id="mic-btn" class="mic-btn" title="Tap to Speak" aria-label="Start voice input">🎤</button>
+                        <p id="mic-instruction" class="mic-instruction">Tap to speak</p>
+                    </div>
+                </div>
+
+                <div class="quick-actions reveal">
+                    <button class="action-card" onclick="sendQuickQuery('Weather')">
+                        <span class="action-icon">🌤️</span>
+                        <span>Weather</span>
+                        <small>मौसम</small>
+                    </button>
+                    <button class="action-card" onclick="sendQuickQuery('News')">
+                        <span class="action-icon">📰</span>
+                        <span>News</span>
+                        <small>समाचार</small>
+                    </button>
+                    <button class="action-card" onclick="sendQuickQuery('Schemes')">
+                        <span class="action-icon">💰</span>
+                        <span>Schemes</span>
+                        <small>योजनाएं</small>
+                    </button>
+                    <button class="action-card" onclick="sendQuickQuery('Emergency')">
+                        <span class="action-icon">🚨</span>
+                        <span>Emergency</span>
+                        <small>आपातकाल</small>
+                    </button>
+                </div>
+
+                <div id="response-area" class="response-area" style="display: none;">
+                    <div class="response-content">
+                        <p id="response-text"></p>
+                        <audio id="audio-player" controls style="display: none;"></audio>
+                    </div>
+                </div>
+            </section>
+
+            <aside class="history-panel reveal">
+                <h2>Recent Prompts</h2>
+                <p>Tap an item to replay instantly.</p>
+                <ul id="history-list"></ul>
+            </aside>
+        </main>
     </div>
-    
-    <div class="main-container">
-        <!-- Left Sidebar for History -->
-        <div class="sidebar">
-            <h2>History</h2>
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
-            <ul id="history-list">
-                <!-- History items will be dynamically added here -->
-            </ul>
-        <div class="page-bg"></div>
-        <div class="ambient ambient-one"></div>
-        <div class="ambient ambient-two"></div>
 
-        <div class="app-shell">
-            <header class="topbar reveal">
-                <div class="brand">
-                    <span class="sparkle">✦</span>
-                    <span class="brand-title">VAANI</span>
-                    <span class="brand-subtitle">Voice Intelligence Workspace</span>
-                </div>
-                <div class="status-indicator" id="status-indicator">
-                    Online
-                </div>
-            </header>
+    <script>
+        let sessionId = 'user_' + Date.now();
+        let isFirstMicClick = true;
 
-            <main class="layout">
-                <section class="assistant-stage reveal">
-                    <p class="kicker">वाणी • आपका स्मार्ट आवाज सहायक</p>
-                    <h1>One voice command.<br>Everything starts here.</h1>
-                    <p class="lead">Ask naturally in Hindi or English. Get instant answers with voice-ready responses.</p>
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('Page loaded, session ID:', sessionId);
 
-                    <div class="command-surface reveal">
-                        <div class="help-text">
-                            <p>मैं आपकी क्या मदद कर सकता हूं?</p>
-                        </div>
-
-                        <div class="input-shell">
-                            <input type="text" id="search-input" class="search-input" placeholder="Ask Vaani anything...">
-                            <button id="send-btn" class="send-btn" type="button">Ask Vaani</button>
-                        </div>
-
-                        <div class="voice-row">
-                            <button id="mic-btn" class="mic-btn" title="Tap to Speak" aria-label="Start voice input">🎤</button>
-                            <p id="mic-instruction" class="mic-instruction">Tap to speak</p>
-                        </div>
-                    </div>
-
-                    <div class="quick-actions reveal">
-                        <button class="action-card" onclick="sendQuickQuery('Weather')">
-                            <span class="action-icon">🌤️</span>
-                            <span>Weather</span>
-                            <small>मौसम</small>
-                        </button>
-                        <button class="action-card" onclick="sendQuickQuery('News')">
-                            <span class="action-icon">📰</span>
-                            <span>News</span>
-                            <small>समाचार</small>
-                        </button>
-                        <button class="action-card" onclick="sendQuickQuery('Schemes')">
-                            <span class="action-icon">💰</span>
-                            <span>Schemes</span>
-                            <small>योजनाएं</small>
-                        </button>
-                        <button class="action-card" onclick="sendQuickQuery('Emergency')">
-                            <span class="action-icon">🚨</span>
-                            <span>Emergency</span>
-                            <small>आपातकाल</small>
-                        </button>
-                    </div>
-
-                    <div id="response-area" class="response-area" style="display: none;">
-                        <div class="response-content">
-                            <p id="response-text"></p>
-                            <audio id="audio-player" controls style="display: none;"></audio>
-                        </div>
-                    </div>
-                </section>
-
-                <aside class="history-panel reveal">
-                    <h2>Recent Prompts</h2>
-                    <p>Tap an item to replay instantly.</p>
-                    <ul id="history-list"></ul>
-                </aside>
-            </main>
             fetch('/api/status')
                 .then(response => response.json())
                 .then(data => {
@@ -107,7 +102,7 @@
                     console.error('API Status check failed:', error);
                     updateStatusIndicator(false);
                 });
-            
+
             fetch('/api/test')
                 .then(response => response.json())
                 .then(data => {
@@ -118,8 +113,7 @@
                     alert('Warning: Could not connect to backend API. Please check if the server is running.');
                 });
         });
-        
-        // Update status indicator
+
         function updateStatusIndicator(isOnline) {
             const indicator = document.getElementById('status-indicator');
             if (isOnline) {
@@ -145,83 +139,63 @@
             }
         }
 
-        // Handle microphone button click
         document.getElementById('mic-btn').addEventListener('click', () => {
             if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
                 alert('Speech recognition not supported in your browser. Please use Chrome or Edge.');
                 return;
             }
-            
-            // Show greeting on first mic click
+
             if (isFirstMicClick) {
-                console.log('First mic click - showing greeting');
                 isFirstMicClick = false;
-                
-                // Show greeting immediately
-                const greeting = "नमस्ते! मैं वाणी हूं, आपकी आवाज सहायक। आप मुझसे मौसम, समाचार, सरकारी योजनाएं और बहुत कुछ पूछ सकते हैं।";
+                const greeting = 'नमस्ते! मैं वाणी हूं, आपकी आवाज सहायक। आप मुझसे मौसम, समाचार, सरकारी योजनाएं और बहुत कुछ पूछ सकते हैं।';
                 showGreeting(greeting);
-                
-                // Fetch greeting with audio
+
                 fetch('/api/greeting')
                     .then(response => response.json())
                     .then(data => {
-                        console.log('Greeting response:', data);
                         if (data.success && data.audio_file) {
-                            console.log('Playing greeting audio:', data.audio_file);
                             playAudioResponse(data.audio_file);
                         }
                     })
                     .catch(error => {
                         console.error('Error fetching greeting:', error);
                     });
-                
-                // Wait for greeting to play, then start recognition
+
                 setTimeout(() => {
-                    console.log('Starting voice recognition after greeting...');
                     startVoiceRecognition();
                 }, 3000);
-                
                 return;
             }
-            
+
             startVoiceRecognition();
         });
-        
+
         function startVoiceRecognition() {
             const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-            
-            // Support both Hindi and English
-            recognition.lang = 'hi-IN'; // Default to Hindi
+            recognition.lang = 'hi-IN';
             recognition.interimResults = false;
             recognition.maxAlternatives = 1;
-            
+
             setMicListening(true);
-            
             recognition.start();
-            console.log('Speech recognition started');
 
             recognition.onresult = (event) => {
                 const query = event.results[0][0].transcript;
-                console.log('Voice input received:', query);
                 addToHistory(query);
                 sendQueryToBackend(query);
-
                 setMicListening(false);
             };
 
             recognition.onerror = (event) => {
-                console.error('Speech recognition error:', event.error);
                 alert('Error capturing voice: ' + event.error);
-
                 setMicListening(false);
             };
-            
+
             recognition.onend = () => {
-                console.log('Speech recognition ended');
                 setMicListening(false);
             };
         }
-        
+
         function showGreeting(text) {
             const responseArea = document.getElementById('response-area');
             const responseText = document.getElementById('response-text');
@@ -233,14 +207,12 @@
             const input = document.getElementById('search-input');
             const query = input.value.trim();
             if (query) {
-                console.log('Text input received:', query);
                 addToHistory(query);
                 sendQueryToBackend(query);
                 input.value = '';
             }
         }
 
-        // Handle search input - Enter key press
         document.getElementById('search-input').addEventListener('keydown', (event) => {
             if (event.key === 'Enter') {
                 event.preventDefault();
@@ -250,28 +222,21 @@
 
         document.getElementById('send-btn').addEventListener('click', triggerTextQuery);
 
-        // Add query to history
         function addToHistory(query) {
             const historyList = document.getElementById('history-list');
             const listItem = document.createElement('li');
             listItem.textContent = query;
             listItem.onclick = () => {
-                console.log('Replaying query:', query);
                 sendQueryToBackend(query);
             };
-            historyList.insertBefore(listItem, historyList.firstChild); // Add to top
-            
-            // Limit history to 20 items
+            historyList.insertBefore(listItem, historyList.firstChild);
+
             if (historyList.children.length > 20) {
                 historyList.removeChild(historyList.lastChild);
             }
         }
 
-        // Send query to backend
         function sendQueryToBackend(query) {
-            console.log('Sending query to backend:', query);
-            
-            // Show loading state
             const responseArea = document.getElementById('response-area');
             const responseText = document.getElementById('response-text');
             responseArea.style.display = 'block';
@@ -282,32 +247,26 @@
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ 
-                    query: query, 
-                    session_id: sessionId 
+                body: JSON.stringify({
+                    query: query,
+                    session_id: sessionId
                 })
             })
             .then(response => {
-                console.log('Response status:', response.status);
                 if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    throw new Error('HTTP error! status: ' + response.status);
                 }
                 return response.json();
             })
             .then(data => {
-                console.log('Response from backend:', data);
-                
                 if (data.success) {
-                    // Format response text with line breaks
                     const formattedText = data.text.replace(/\n/g, '<br>');
                     responseText.innerHTML = formattedText;
-                    
-                    // Play audio if available
+
                     if (data.audio_file) {
                         playAudioResponse(data.audio_file);
                     }
-                    
-                    // Show waiting message if waiting for news selection
+
                     if (data.waiting_for_news) {
                         responseText.innerHTML += '<br><br><em>कृपया खबर का नंबर बोलें या लिखें...</em>';
                     }
@@ -316,56 +275,35 @@
                 }
             })
             .catch(error => {
-                console.error('Error communicating with server:', error);
                 responseText.innerHTML = '<div style="color: #d32f2f;">❌ Error communicating with server: ' + error.message + '<br><br>Please check if the server is running.</div>';
             });
         }
 
-        // Play audio response
         function playAudioResponse(audioFile) {
-            if (audioFile) {
-                console.log('Attempting to play audio:', audioFile);
-                const audioPlayer = document.getElementById('audio-player');
-                
-                // Reset player
-                audioPlayer.pause();
-                audioPlayer.currentTime = 0;
-                
-                // Set new source
-                audioPlayer.src = audioFile;
-                audioPlayer.style.display = 'block';
-                
-                // Add cache buster to force reload
-                const cacheBuster = '?t=' + new Date().getTime();
-                audioPlayer.src = audioFile + cacheBuster;
-                
-                // Load and play
-                audioPlayer.load();
-                
-                // Attempt to play
-                const playPromise = audioPlayer.play();
-                
-                if (playPromise !== undefined) {
-                    playPromise.then(() => {
-                        console.log('✅ Audio playback started successfully');
-                    }).catch(error => {
-                        console.error('❌ Audio playback error:', error);
-                        console.log('Audio file URL:', audioFile);
-                        
-                        // Show error to user
-                        alert('Audio playback failed. Error: ' + error.message + '\nPlease check browser console.');
-                    });
-                }
-            } else {
-                console.warn('No audio file provided');
+            if (!audioFile) {
+                return;
+            }
+
+            const audioPlayer = document.getElementById('audio-player');
+            audioPlayer.pause();
+            audioPlayer.currentTime = 0;
+            audioPlayer.style.display = 'block';
+
+            const cacheBuster = '?t=' + new Date().getTime();
+            audioPlayer.src = audioFile + cacheBuster;
+            audioPlayer.load();
+
+            const playPromise = audioPlayer.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(error => {
+                    alert('Audio playback failed. Error: ' + error.message + '\nPlease check browser console.');
+                });
             }
         }
 
-        // Quick action functions
         function sendQuickQuery(actionType) {
             let query = '';
-            
-            switch(actionType) {
+            switch (actionType) {
                 case 'Weather':
                     query = 'मौसम कैसा है';
                     break;
@@ -381,8 +319,7 @@
                 default:
                     query = actionType;
             }
-            
-            console.log('Quick action:', actionType, '-> Query:', query);
+
             addToHistory(query);
             sendQueryToBackend(query);
         }
