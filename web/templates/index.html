@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v=cache_buster) }}">
 </head>
 <body>
     <div class="page-bg"></div>
@@ -19,30 +19,25 @@
             <div class="brand">
                 <span class="sparkle">✦</span>
                 <span class="brand-title">VAANI</span>
-                <span class="brand-subtitle">Voice Intelligence Workspace</span>
+                <span class="brand-subtitle">Voice Assistant • Hindi + English</span>
             </div>
             <div class="status-indicator" id="status-indicator">Online</div>
         </header>
 
         <main class="layout">
             <section class="assistant-stage reveal">
-                <p class="kicker">वाणी • आपका स्मार्ट आवाज सहायक</p>
-                <h1>One voice command.<br>Everything starts here.</h1>
-                <p class="lead">Ask naturally in Hindi or English. Get instant answers with voice-ready responses.</p>
+                <p class="kicker">वाणी • आपकी आसान आवाज सहायक</p>
+                <h1>बोलिए.<br>मैं सुन रही हूँ.</h1>
+                <p class="lead">हिंदी या English में बोलिए. मैं मौसम, खबर, योजना और खेती की मदद करूँगी.</p>
 
                 <div class="command-surface reveal">
                     <div class="help-text">
-                        <p>मैं आपकी क्या मदद कर सकता हूं?</p>
-                    </div>
-
-                    <div class="input-shell">
-                        <input type="text" id="search-input" class="search-input" placeholder="Ask Vaani anything...">
-                        <button id="send-btn" class="send-btn" type="button">Ask Vaani</button>
+                        <p>मैं आपकी कैसे मदद करूं?</p>
                     </div>
 
                     <div class="voice-row">
                         <button id="mic-btn" class="mic-btn" title="Tap to Speak" aria-label="Start voice input">🎤</button>
-                        <p id="mic-instruction" class="mic-instruction">Tap to speak</p>
+                        <p id="mic-instruction" class="mic-instruction">बोलने के लिए दबाएँ</p>
                     </div>
                 </div>
 
@@ -72,14 +67,15 @@
                 <div id="response-area" class="response-area" style="display: none;">
                     <div class="response-content">
                         <p id="response-text"></p>
+                        <button id="response-toggle" class="response-toggle" type="button" style="display: none;"></button>
                         <audio id="audio-player" controls style="display: none;"></audio>
                     </div>
                 </div>
             </section>
 
             <aside class="history-panel reveal">
-                <h2>Recent Prompts</h2>
-                <p>Tap an item to replay instantly.</p>
+                <h2>Recent Questions / हाल के सवाल</h2>
+                <p>किसी सवाल पर टैप करें और फिर से पूछें.</p>
                 <ul id="history-list"></ul>
             </aside>
         </main>
@@ -88,6 +84,10 @@
     <script>
         let sessionId = 'user_' + Date.now();
         let isFirstMicClick = true;
+        const MAX_VOICE_RETRY = 1;
+        const LONG_RESPONSE_LIMIT = 900;
+        let lastResponseText = '';
+        let isResponseExpanded = false;
 
         window.addEventListener('DOMContentLoaded', () => {
             console.log('Page loaded, session ID:', sessionId);
@@ -110,8 +110,84 @@
                 })
                 .catch(error => {
                     console.error('API Test Failed:', error);
-                    alert('Warning: Could not connect to backend API. Please check if the server is running.');
+                    alert('सर्वर से कनेक्शन नहीं हुआ। कृपया थोड़ी देर बाद फिर कोशिश करें।');
                 });
+        });
+
+        function formatResponseForReading(text) {
+            return String(text || '')
+                .replace(/\s+/g, ' ')
+                .replace(/।\s+/g, '।\n')
+                .replace(/:\s+/g, ':\n')
+                .replace(/\]\s*,\s*\[/g, ']\n\n[')
+                .trim();
+        }
+
+        function writeMultilineText(element, text) {
+            element.textContent = '';
+            const lines = String(text || '').split('\n');
+
+            lines.forEach((line, index) => {
+                element.appendChild(document.createTextNode(line));
+                if (index < lines.length - 1) {
+                    element.appendChild(document.createElement('br'));
+                }
+            });
+        }
+
+        function updateResponseToggle() {
+            const toggle = document.getElementById('response-toggle');
+            if (!toggle) {
+                return;
+            }
+
+            if (lastResponseText.length <= LONG_RESPONSE_LIMIT) {
+                toggle.style.display = 'none';
+                return;
+            }
+
+            toggle.style.display = 'inline-flex';
+            toggle.textContent = isResponseExpanded ? 'कम दिखाएं' : 'और पढ़ें';
+        }
+
+        function renderResponseText(text) {
+            const responseText = document.getElementById('response-text');
+            const prettyText = formatResponseForReading(text);
+            lastResponseText = prettyText;
+
+            const displayText = isResponseExpanded || prettyText.length <= LONG_RESPONSE_LIMIT
+                ? prettyText
+                : prettyText.slice(0, LONG_RESPONSE_LIMIT).trim() + '...';
+
+            writeMultilineText(responseText, displayText);
+            updateResponseToggle();
+        }
+
+        function normalizeResponseText(data) {
+            const raw = data && (data.text || data.message || '');
+            const text = String(raw || '').trim();
+
+            if (!text) {
+                return 'माफ़ कीजिए, अभी साफ जवाब नहीं आया। कृपया दोबारा पूछें।';
+            }
+
+            if (text.toLowerCase().includes('gtext') || text.toLowerCase().includes('unknown')) {
+                return 'माफ़ कीजिए, जवाब में छोटी तकनीकी दिक्कत आई। कृपया दोबारा पूछें।';
+            }
+
+            return text;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const responseToggle = document.getElementById('response-toggle');
+            if (!responseToggle) {
+                return;
+            }
+
+            responseToggle.addEventListener('click', () => {
+                isResponseExpanded = !isResponseExpanded;
+                renderResponseText(lastResponseText);
+            });
         });
 
         function updateStatusIndicator(isOnline) {
@@ -125,23 +201,34 @@
             }
         }
 
+        function stopCurrentAudio() {
+            const audioPlayer = document.getElementById('audio-player');
+            if (!audioPlayer) {
+                return;
+            }
+            audioPlayer.pause();
+            audioPlayer.currentTime = 0;
+        }
+
         function setMicListening(isListening) {
             const micBtn = document.getElementById('mic-btn');
             const micInstruction = document.getElementById('mic-instruction');
             if (isListening) {
                 micBtn.classList.add('listening');
                 micBtn.textContent = '●';
-                micInstruction.textContent = 'Listening...';
+                micInstruction.textContent = 'सुन रहा हूं...';
             } else {
                 micBtn.classList.remove('listening');
                 micBtn.textContent = '🎤';
-                micInstruction.textContent = 'Tap to speak';
+                micInstruction.textContent = 'बोलने के लिए दबाएँ';
             }
         }
 
         document.getElementById('mic-btn').addEventListener('click', () => {
+            stopCurrentAudio();
+
             if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-                alert('Speech recognition not supported in your browser. Please use Chrome or Edge.');
+                alert('Voice input आपके ब्राउज़र में उपलब्ध नहीं है। कृपया Chrome या Edge इस्तेमाल करें।');
                 return;
             }
 
@@ -170,14 +257,25 @@
             startVoiceRecognition();
         });
 
-        function startVoiceRecognition() {
+        function startVoiceRecognition(retryCount = 0) {
+            if (!navigator.onLine) {
+                renderResponseText('इंटरनेट कनेक्शन बंद है।\nकृपया इंटरनेट चालू करके फिर माइक्रोफोन दबाएँ।');
+                return;
+            }
+
             const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
             recognition.lang = 'hi-IN';
             recognition.interimResults = false;
             recognition.maxAlternatives = 1;
 
             setMicListening(true);
-            recognition.start();
+            try {
+                recognition.start();
+            } catch (error) {
+                setMicListening(false);
+                renderResponseText('आवाज़ शुरू नहीं हो पाई।\nकृपया दोबारा कोशिश करें।');
+                return;
+            }
 
             recognition.onresult = (event) => {
                 const query = event.results[0][0].transcript;
@@ -187,7 +285,27 @@
             };
 
             recognition.onerror = (event) => {
-                alert('Error capturing voice: ' + event.error);
+                const err = String(event.error || '').toLowerCase();
+
+                if (err === 'network' && retryCount < MAX_VOICE_RETRY) {
+                    setMicListening(false);
+                    renderResponseText('नेटवर्क धीमा है, दोबारा सुनने की कोशिश कर रहा हूं...');
+                    setTimeout(() => {
+                        startVoiceRecognition(retryCount + 1);
+                    }, 900);
+                    return;
+                }
+
+                if (err === 'network') {
+                    renderResponseText('आवाज़ सुनने में नेटवर्क दिक्कत आई।\n1) इंटरनेट चालू रखें\n2) Chrome/Edge में mic अनुमति दें\n3) फिर माइक्रोफोन दबाएँ');
+                } else if (err === 'not-allowed' || err === 'service-not-allowed') {
+                    renderResponseText('माइक्रोफोन अनुमति नहीं मिली।\nब्राउज़र में mic permission Allow करें, फिर दोबारा कोशिश करें।');
+                } else if (err === 'no-speech') {
+                    renderResponseText('आवाज़ साफ नहीं मिली।\nकृपया माइक्रोफोन के पास बोलें और फिर कोशिश करें।');
+                } else if (err !== 'aborted') {
+                    renderResponseText('आवाज़ सुनने में दिक्कत आई।\nकृपया फिर से माइक्रोफोन दबाएँ।');
+                }
+
                 setMicListening(false);
             };
 
@@ -199,12 +317,19 @@
         function showGreeting(text) {
             const responseArea = document.getElementById('response-area');
             const responseText = document.getElementById('response-text');
+            const responseToggle = document.getElementById('response-toggle');
             responseArea.style.display = 'block';
             responseText.innerHTML = '<div class="welcome-message"><h3>✦ स्वागत है!</h3><p>' + text + '</p></div>';
+            if (responseToggle) {
+                responseToggle.style.display = 'none';
+            }
         }
 
         function triggerTextQuery() {
             const input = document.getElementById('search-input');
+            if (!input) {
+                return;
+            }
             const query = input.value.trim();
             if (query) {
                 addToHistory(query);
@@ -213,14 +338,20 @@
             }
         }
 
-        document.getElementById('search-input').addEventListener('keydown', (event) => {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                triggerTextQuery();
-            }
-        });
+        const searchInput = document.getElementById('search-input');
+        if (searchInput) {
+            searchInput.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    triggerTextQuery();
+                }
+            });
+        }
 
-        document.getElementById('send-btn').addEventListener('click', triggerTextQuery);
+        const sendBtn = document.getElementById('send-btn');
+        if (sendBtn) {
+            sendBtn.addEventListener('click', triggerTextQuery);
+        }
 
         function addToHistory(query) {
             const historyList = document.getElementById('history-list');
@@ -237,10 +368,12 @@
         }
 
         function sendQueryToBackend(query) {
+            stopCurrentAudio();
+            isResponseExpanded = false;
+
             const responseArea = document.getElementById('response-area');
-            const responseText = document.getElementById('response-text');
             responseArea.style.display = 'block';
-            responseText.innerHTML = '<div style="text-align: center;"><div class="spinner"></div><p>आपके सवाल का जवाब तैयार किया जा रहा है...</p></div>';
+            renderResponseText('आपके सवाल का जवाब तैयार किया जा रहा है...');
 
             fetch('/api/query', {
                 method: 'POST',
@@ -260,22 +393,28 @@
             })
             .then(data => {
                 if (data.success) {
-                    const formattedText = data.text.replace(/\n/g, '<br>');
-                    responseText.innerHTML = formattedText;
+                    const cleanText = normalizeResponseText(data);
+                    renderResponseText(cleanText);
 
                     if (data.audio_file) {
                         playAudioResponse(data.audio_file);
                     }
 
                     if (data.waiting_for_news) {
-                        responseText.innerHTML += '<br><br><em>कृपया खबर का नंबर बोलें या लिखें...</em>';
+                        const responseText = document.getElementById('response-text');
+                        responseText.appendChild(document.createElement('br'));
+                        responseText.appendChild(document.createElement('br'));
+                        const hint = document.createElement('em');
+                        hint.textContent = 'कृपया खबर का नंबर बोलें...';
+                        responseText.appendChild(hint);
                     }
                 } else {
-                    responseText.innerHTML = '<div style="color: #d32f2f;">❌ Error: ' + (data.message || data.text || 'Unknown error occurred') + '</div>';
+                    const failText = normalizeResponseText(data);
+                    renderResponseText('माफ़ कीजिए, यह काम अभी नहीं हो पाया।\n' + failText);
                 }
             })
             .catch(error => {
-                responseText.innerHTML = '<div style="color: #d32f2f;">❌ Error communicating with server: ' + error.message + '<br><br>Please check if the server is running.</div>';
+                renderResponseText('सर्वर से बात नहीं हो पाई।\nकृपया इंटरनेट और सर्वर स्थिति जांचें, फिर दोबारा कोशिश करें।');
             });
         }
 
@@ -296,7 +435,7 @@
             const playPromise = audioPlayer.play();
             if (playPromise !== undefined) {
                 playPromise.catch(error => {
-                    alert('Audio playback failed. Error: ' + error.message + '\nPlease check browser console.');
+                    alert('आवाज़ चलाने में दिक्कत आई। कृपया दोबारा कोशिश करें।');
                 });
             }
         }
