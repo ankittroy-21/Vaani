@@ -6,6 +6,7 @@ Handles curious questions that children might ask their parents
 import os
 import google.generativeai as genai
 from dotenv import load_dotenv
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
 
 load_dotenv()
 
@@ -13,10 +14,23 @@ class GeneralKnowledgeService:
     def __init__(self):
         """Initialize the Gemini API with the API key"""
         self.api_key = os.getenv('GEMINI_API_KEY')
+        self.model_name = os.getenv('GEMINI_MODEL', 'gemini-2.5-flash')
+        self.request_timeout = float(os.getenv('GEMINI_TIMEOUT_SECONDS', '4.5'))
+        self.max_cache_size = int(os.getenv('GEMINI_CACHE_SIZE', '200'))
+        self.response_cache = {}
+        self.intent_cache = {}
+        self.intent_cache_size = 300
+
+        self.quick_replies = {
+            'तुम कौन हो': 'मैं वाणी हूँ, आपकी आवाज सहायक। आप मुझसे मौसम, खबर, योजना और सामान्य जानकारी पूछ सकते हैं।',
+            'who are you': 'मैं वाणी हूँ, आपकी voice assistant। आप मुझसे जानकारी वाले सवाल पूछ सकते हैं।',
+            'क्या कर सकते हो': 'मैं मौसम, खबर, सरकारी योजनाएं, खेती और सामान्य सवालों में मदद कर सकती हूँ।',
+            'what can you do': 'मैं weather, news, schemes, farming और general knowledge में मदद कर सकती हूँ।'
+        }
+
         if self.api_key:
             genai.configure(api_key=self.api_key)
-            # Use the latest stable Gemini model (verified working)
-            self.model = genai.GenerativeModel('gemini-2.5-flash')
+            self.model = genai.GenerativeModel(self.model_name)
         else:
             self.model = None
             print("Warning: GEMINI_API_KEY not found in .env file")
@@ -32,45 +46,123 @@ class GeneralKnowledgeService:
         """
         if not self.is_configured():
             return None, "Gemini API is not configured. Please add GEMINI_API_KEY to your .env file."
+
+        normalized_question = ' '.join(str(question or '').strip().lower().split())
+        if not normalized_question:
+            return None, "कृपया अपना सवाल दोबारा पूछें।"
+
+        if normalized_question in self.quick_replies:
+            return self.quick_replies[normalized_question], None
+
+        if normalized_question in self.response_cache:
+            return self.response_cache[normalized_question], None
         
         try:
-            # Create a neutral, friendly prompt (suitable for adults and children)
             prompt = f"""
-            आप एक दोस्ताना, समझाने योग्य और तथ्यात्मक सहायक की भूमिका निभाएँ। उपयोगकर्ता ने यह प्रश्न पूछा है:
-
+            आप एक तेज और स्पष्ट हिंदी सहायक हैं।
             सवाल: {question}
-
-            कृपया:
-            1. सरल और स्पष्ट हिंदी में उत्तर दें (2-5 वाक्य)
-            2. यदि उपयुक्त हो तो रोज़मर्रा के उदाहरण दें जिससे समझना आसान हो
-            3. सकारात्मक और उत्साहवर्धक लहजे में, पर वयस्क-उपयुक्त भाषा में उत्तर दें
-            4. संभव हो तो एक छोटा रोचक तथ्य जोड़ें
-
-            जवाब (केवल हिंदी में):
+            निर्देश:
+            - 3-6 छोटे वाक्य
+            - आसान हिंदी
+            - तथ्यात्मक और सीधे मुद्दे पर
+            - अनावश्यक भूमिका या दोहराव नहीं
+            जवाब:
             """
-            
-            # Generate response
-            response = self.model.generate_content(prompt)
+
+            def _generate():
+                return self.model.generate_content(
+                    prompt,
+                    generation_config={
+                        'temperature': 0.35,
+                        'top_p': 0.9,
+                        'max_output_tokens': 220
+                    }
+                )
+
+            with ThreadPoolExecutor(max_workers=1) as executor:
+                future = executor.submit(_generate)
+                response = future.result(timeout=self.request_timeout)
             
             if response and response.text:
-                # Clean the response text
                 clean_text = response.text.strip()
-                # Remove excessive whitespace and newlines
                 clean_text = ' '.join(clean_text.split())
-                # Ensure proper spacing after punctuation
                 clean_text = clean_text.replace('।', '। ')
                 clean_text = clean_text.replace('!', '! ')
                 clean_text = clean_text.replace('?', '? ')
-                # Remove multiple spaces
                 clean_text = ' '.join(clean_text.split())
+
+                if len(self.response_cache) >= self.max_cache_size:
+                    first_key = next(iter(self.response_cache))
+                    del self.response_cache[first_key]
+                self.response_cache[normalized_question] = clean_text
+
                 return clean_text, None
             else:
                 return None, "मुझे इस सवाल का जवाब नहीं मिल पाया।"
+
+        except FuturesTimeoutError:
+            return None, "जवाब आने में समय लग रहा है। कृपया छोटा सवाल पूछें या दोबारा कोशिश करें।"
                 
         except Exception as e:
             error_msg = f"Error in Gemini API call: {str(e)}"
             print(error_msg)
             return None, "क्षमा करें, मुझे कुछ तकनीकी समस्या आ रही है। कृपया फिर से कोशिश करें।"
+
+    def classify_intent_label(self, query):
+        """
+        Return one compact intent label for routing.
+        Labels: weather, news, agri_scheme, agri_advice, social_scheme, finance_basic, general
+        """
+        if not self.is_configured():
+            return None
+
+        normalized_query = ' '.join(str(query or '').strip().lower().split())
+        if not normalized_query:
+            return None
+
+        if normalized_query in self.intent_cache:
+            return self.intent_cache[normalized_query]
+
+        prompt = f"""
+        Classify user intent and return only one label from this list:
+        weather, news, agri_scheme, agri_advice, social_scheme, finance_basic, general
+
+        User query: {query}
+
+        Output format: label only
+        """
+
+        def _generate_label():
+            return self.model.generate_content(
+                prompt,
+                generation_config={
+                    'temperature': 0.0,
+                    'top_p': 0.8,
+                    'max_output_tokens': 8
+                }
+            )
+
+        try:
+            with ThreadPoolExecutor(max_workers=1) as executor:
+                future = executor.submit(_generate_label)
+                response = future.result(timeout=min(self.request_timeout, 2.5))
+
+            if not response or not response.text:
+                return None
+
+            label = response.text.strip().lower().split()[0]
+            allowed = {'weather', 'news', 'agri_scheme', 'agri_advice', 'social_scheme', 'finance_basic', 'general'}
+            if label not in allowed:
+                return None
+
+            if len(self.intent_cache) >= self.intent_cache_size:
+                first_key = next(iter(self.intent_cache))
+                del self.intent_cache[first_key]
+            self.intent_cache[normalized_query] = label
+            return label
+
+        except Exception:
+            return None
     
     def is_general_knowledge_question(self, query):
         """
@@ -92,7 +184,7 @@ class GeneralKnowledgeService:
         has_question_word = any(word in query_lower for word in question_words)
         
         # Check if it ends with question mark
-        has_question_mark = '?' in query or '।' in query
+        has_question_mark = '?' in query
         
         return has_question_word or has_question_mark
 
@@ -108,7 +200,7 @@ def get_gk_service():
     return _gk_service
 
 
-def handle_general_knowledge_query(query, voice_output_func):
+def handle_general_knowledge_query(query, voice_output_func, force=False):
     """
     Main function to handle general knowledge queries
     
@@ -121,8 +213,8 @@ def handle_general_knowledge_query(query, voice_output_func):
     """
     service = get_gk_service()
     
-    # Check if it's a general knowledge question
-    if not service.is_general_knowledge_question(query):
+    # Check if it's a general knowledge question unless forced fallback mode is used
+    if not force and not service.is_general_knowledge_question(query):
         return False
     
     # Check if Gemini is configured
@@ -146,6 +238,12 @@ def handle_general_knowledge_query(query, voice_output_func):
         return True
     
     return False
+
+
+def get_fast_intent_label(query):
+    """Get a fast intent label from Gemini for ambiguous queries only."""
+    service = get_gk_service()
+    return service.classify_intent_label(query)
 
 
 def test_general_knowledge():
