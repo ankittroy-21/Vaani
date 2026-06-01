@@ -18,6 +18,13 @@ logger = logging.getLogger(__name__)
 # In-memory cache for crop data
 CROP_DATABASE: Dict[str, Dict[str, Any]] = {}
 
+STAGE_ALIAS_MAP = {
+    "कटाई": ["कटाई की प्रक्रिया", "फसल_कब_तैयार", "कटाई के बाद प्रबंधन और भंडारण"],
+    "भंडारण": ["कटाई के बाद प्रबंधन और भंडारण", "भंडारण के दौरान रोग और कीट प्रबंधन"],
+    "कीट": ["भंडारण के दौरान रोग और कीट प्रबंधन", "आम_समस्याएं", "आम_समस्याएं_और_समाधान"],
+    "रोग": ["भंडारण के दौरान रोग और कीट प्रबंधन", "आम_समस्याएं", "आम_समस्याएं_और_समाधान"]
+}
+
 
 def load_crop_data(crop_name: str) -> Optional[Dict[str, Any]]:
     """
@@ -96,11 +103,49 @@ def speak_full_info(crop_name: str, crop_data: Dict[str, Any], bolo_func) -> Non
         time.sleep(0.8)
 
 
+def _resolve_stage_key(crop_data: Dict[str, Any], stage: Optional[str], command: str) -> Optional[str]:
+    """Resolve user stage text to the best available key in crop data."""
+    if not stage:
+        return None
+
+    # Exact top-level key
+    if stage in crop_data:
+        return stage
+
+    # Alias mapping
+    aliases = STAGE_ALIAS_MAP.get(stage, [])
+    for alias in aliases:
+        if alias in crop_data:
+            return alias
+
+    # Try advice section (keys with underscores)
+    advice_section = crop_data.get("सलाह", {})
+    if isinstance(advice_section, dict):
+        for key in advice_section.keys():
+            key_norm = key.replace('_', ' ')
+            if stage in key or stage in key_norm:
+                return f"सलाह::{key}"
+
+    # Token-overlap fallback on top-level keys
+    command_tokens = set(command.replace('?', ' ').replace('।', ' ').split())
+    best_key = None
+    best_score = 0
+    for key in crop_data.keys():
+        key_tokens = set(str(key).replace('_', ' ').split())
+        score = len(command_tokens & key_tokens)
+        if score > best_score:
+            best_score = score
+            best_key = key
+
+    return best_key if best_score >= 2 else None
+
+
 def get_farming_advisory(
     crop: str, 
     stage: Optional[str], 
     bolo_func, 
-    context
+    context,
+    command_text: Optional[str] = None
 ) -> None:
     """
     Provides farming advisory based on crop and stage with contextual handling.
@@ -138,10 +183,19 @@ def get_farming_advisory(
         )
         return
 
+    resolved_stage = _resolve_stage_key(crop_data, stage, command=command_text or stage or "")
+
     # Provide specific stage information
-    if stage in crop_data:
-        stage_info = crop_data[stage]
-        response = f"{crop} के लिए {stage} की जानकारी: "
+    if resolved_stage:
+        if resolved_stage.startswith("सलाह::"):
+            advice_key = resolved_stage.split("::", 1)[1]
+            stage_info = crop_data.get("सलाह", {}).get(advice_key)
+            pretty_stage = advice_key.replace('_', ' ')
+        else:
+            stage_info = crop_data[resolved_stage]
+            pretty_stage = resolved_stage
+
+        response = f"{crop} के लिए {pretty_stage} की जानकारी: "
         
         if isinstance(stage_info, dict):
             bolo_func(response)
@@ -155,9 +209,27 @@ def get_farming_advisory(
             response += str(stage_info)
             bolo_func(response)
             
-        logger.info(f"Provided {stage} info for {crop}")
+        logger.info(f"Provided {pretty_stage} info for {crop}")
     else:
-        # Stage not found, provide introduction as fallback
+        # Stage not found in local JSON: try targeted Gemini fallback first
+        try:
+            from vaani.services.knowledge.general_knowledge_service import get_gk_service
+            gk_service = get_gk_service()
+            if gk_service and gk_service.is_configured():
+                gk_prompt = (
+                    f"मैंने {crop} की {stage or 'खेती'} पूरी कर ली है। अब आगे क्या करूं? "
+                    f"उपयोगकर्ता ने पूछा: {crop} - {stage}. "
+                    "कृपया किसान के लिए 5-7 छोटे, व्यावहारिक कदम हिंदी में दें।"
+                )
+                gk_answer, gk_error = gk_service.ask_question(gk_prompt)
+                if gk_answer and not gk_error:
+                    bolo_func(gk_answer)
+                    logger.info(f"Used Gemini fallback for {crop}/{stage}")
+                    return
+        except Exception as e:
+            logger.warning(f"Gemini stage fallback failed for {crop}/{stage}: {e}")
+
+        # Final fallback
         intro = crop_data.get("परिचय", f"'{crop}' के लिए कोई सामान्य जानकारी नहीं मिली।")
         response = f"माफ़ कीजिए, मुझे '{stage}' के बारे में विशेष जानकारी नहीं मिली। लेकिन यहाँ {crop} का परिचय है: {intro}"
         bolo_func(response)
@@ -178,7 +250,7 @@ def handle_advice_query(command: str, bolo_func, context) -> None:
         context.data.get('query_type') == 'advice_crop'):
         found_crop = next((c for c in Config.agri_commodities if c in command), None)
         if found_crop:
-            get_farming_advisory(found_crop, None, bolo_func, context)
+            get_farming_advisory(found_crop, None, bolo_func, context, command_text=command)
             return
     
     # Extract crop from command
@@ -204,12 +276,22 @@ def handle_advice_query(command: str, bolo_func, context) -> None:
         "पूरी जानकारी", "पूरी", "सब कुछ", "बारे में बताओ", 
         "जानकारी दें", "सब बताओ", "विस्तार से"
     ]
+
+    # Strong shortcut for post-harvest storage queries (wording can vary: भंडार/भंडारण/स्टोर/कीड़े)
+    post_harvest_tokens = ["कटाई", "हार्वेस्ट", "फसल काट"]
+    storage_tokens = ["भंडारण", "भंडार", "स्टोर", "गोदाम", "कीड़े", "घुन", "सुरक्षित"]
+    if any(token in command for token in post_harvest_tokens) and any(token in command for token in storage_tokens):
+        found_stage = "कटाई के बाद प्रबंधन और भंडारण"
+        get_farming_advisory(found_crop, found_stage, bolo_func, context, command_text=command)
+        logger.info(f"Handled post-harvest storage query for crop: {found_crop}")
+        return
     
     if any(keyword in command for keyword in full_info_keywords):
         found_stage = "पूरी जानकारी"
     else:
-        # Try to extract stage from command
-        found_stage = next((s for s in Config.agri_stages if s in command), None)
+        # Try to extract stage from command (prefer longer/specific matches)
+        matched_stages = [s for s in Config.agri_stages if s in command]
+        found_stage = sorted(matched_stages, key=len, reverse=True)[0] if matched_stages else None
 
-    get_farming_advisory(found_crop, found_stage, bolo_func, context)
+    get_farming_advisory(found_crop, found_stage, bolo_func, context, command_text=command)
     logger.info(f"Handled advice query for crop: {found_crop}, stage: {found_stage}")

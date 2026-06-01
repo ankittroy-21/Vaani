@@ -2,6 +2,7 @@ import requests
 from vaani.core import config as Config
 from datetime import date, timedelta, datetime
 import os
+import re
 
 def _parse_location(command):
     """A dedicated helper function to reliably parse the city name from a command."""
@@ -18,9 +19,11 @@ def _parse_location(command):
     common_words = {"का", "की", "के", "में", "से", "को", "और", "है", "हैं", "बताओ", "बताइए", "सुनाओ", "कैसा"}
     all_words_to_remove.update(common_words)
     
+    command = re.sub(r"[?।,!;:]+", " ", command)
     command_words = command.split()
     location_words = [word for word in command_words if word not in all_words_to_remove]
-    location = " ".join(location_words)
+    location = " ".join(location_words).strip()
+    location = re.sub(r"^(मौसम|बारिश|तापमान|हवा|धूप|बादल|कोहरा)\s+", "", location).strip()
     return location
 
 def _format_date_hindi(date_str):
@@ -169,10 +172,17 @@ def get_general_weather(command, city_to_check, bolo_func):
 def get_weather(command, bolo_func):
     """Finds the location, then routes to the correct weather/rain function."""
     location = _parse_location(command)
-    city_to_check = location if location else "Lucknow"
-    
-    if not location and ("मौसम" in command or "बारिश" in command):
-        bolo_func(f"आपने शहर का नाम नहीं बताया, इसलिए मैं लखनऊ की जानकारी दे रहा हूँ।")
+
+    # Do not guess a city unless the user explicitly set a default in environment.
+    default_city = os.getenv('WEATHER_DEFAULT_CITY', '').strip()
+    city_to_check = location or default_city
+
+    if not city_to_check and ("मौसम" in command or "बारिश" in command or any(phrase in command for phrase in Config.weather_trigger)):
+        bolo_func("कृपया शहर का नाम बताइए, जैसे दिल्ली, लखनऊ, पटना या जयपुर।")
+        return
+
+    if not location and default_city:
+        bolo_func(f"शहर नहीं मिला, इसलिए मैं {default_city} की जानकारी दे रहा हूँ।")
     
     if any(phrase in command for phrase in Config.rain_trigger) or any(phrase in command for phrase in Config.rain_most_significant):
         get_rain_forecast(command, city_to_check, bolo_func)
