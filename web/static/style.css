@@ -1,17 +1,17 @@
 :root {
-    --bg: #f7f4ff;
+    --bg: #f8f5ff;
     --bg-soft: #efe8ff;
     --surface: #ffffff;
     --surface-soft: #f8f4ff;
     --text: #211436;
     --muted: #6e5f87;
-    --primary: #5b2dbd;
+    --primary: #5926bf;
     --primary-strong: #472090;
     --primary-soft: #ece3ff;
     --success: #168d62;
     --danger: #b7425d;
     --ring: rgba(91, 45, 189, 0.22);
-    --shadow: 0 18px 40px rgba(77, 38, 155, 0.14);
+    --shadow: 0 20px 42px rgba(77, 38, 155, 0.13);
     --radius-lg: 24px;
     --radius-md: 16px;
     --radius-sm: 12px;
@@ -178,8 +178,15 @@ h1 {
     margin: 18px 0 12px;
     font-family: 'Space Grotesk', sans-serif;
     font-size: clamp(2.1rem, 5vw, 4.1rem);
-    line-height: 0.98;
+    line-height: 0.95;
     letter-spacing: -0.03em;
+}
+
+.headline-accent {
+    display: inline-block;
+    margin-right: 8px;
+    color: #7b46dd;
+    transform: translateY(-3px);
 }
 
 .lead {
@@ -192,10 +199,11 @@ h1 {
 
 .command-surface {
     margin-top: 24px;
-    background: linear-gradient(180deg, #f8f4ff 0%, #fefcff 100%);
+    background: linear-gradient(180deg, #f6f0ff 0%, #fffdff 100%);
     border: 1px solid rgba(148, 113, 222, 0.26);
     border-radius: 20px;
     padding: 22px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
 .help-text {
@@ -217,12 +225,12 @@ h1 {
 
 .search-input {
     flex: 1;
-    height: 56px;
+    height: 60px;
     border: 1px solid rgba(133, 94, 212, 0.36);
     background: #fff;
     border-radius: 14px;
-    padding: 0 16px;
-    font-size: 1.02rem;
+    padding: 0 18px;
+    font-size: 1.04rem;
     color: var(--text);
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
@@ -238,18 +246,19 @@ h1 {
 }
 
 .send-btn {
-    height: 56px;
-    padding: 0 20px;
+    height: 60px;
+    min-width: 150px;
+    padding: 0 22px;
     border: 0;
     border-radius: 14px;
-    background: linear-gradient(135deg, #612ec9, #4a21a4);
+    background: linear-gradient(135deg, #642fcd, #4a1d9f);
     color: #fff;
-    font-size: 0.96rem;
+    font-size: 0.98rem;
     font-weight: 800;
     letter-spacing: 0.02em;
     cursor: pointer;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
-    box-shadow: 0 10px 20px rgba(80, 35, 172, 0.28);
+    box-shadow: 0 12px 24px rgba(80, 35, 172, 0.3);
 }
 
 .send-btn:hover {
@@ -260,8 +269,16 @@ h1 {
     transform: translateY(0);
 }
 
+.input-note {
+    margin: 10px 2px 0;
+    color: #7a6b95;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+}
+
 .voice-row {
-    margin-top: 15px;
+    margin-top: 12px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -305,41 +322,37 @@ h1 {
     margin-top: 20px;
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 12px;
+    gap: 10px;
 }
 
 .action-card {
     border: 1px solid rgba(147, 112, 220, 0.28);
-    border-radius: var(--radius-sm);
-    background: #fff;
-    padding: 12px;
+    border-radius: 999px;
+    background: #fcf9ff;
+    padding: 11px 14px;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
     justify-content: center;
-    gap: 4px;
+    gap: 8px;
     text-align: center;
-    color: var(--text);
-    font-size: 0.9rem;
+    color: #3b2561;
+    font-size: 0.84rem;
     font-weight: 700;
     cursor: pointer;
     transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
 }
 
 .action-card:hover {
-    transform: translateY(-2px);
+    transform: translateY(-1px);
     border-color: var(--primary);
-    box-shadow: 0 10px 20px rgba(94, 44, 190, 0.16);
-}
-
-.action-icon {
-    font-size: 1.2rem;
+    box-shadow: 0 8px 18px rgba(94, 44, 190, 0.12);
 }
 
 .action-card small {
     color: var(--muted);
     font-weight: 600;
-    font-size: 0.76rem;
+    font-size: 0.72rem;
 }
 
 .response-area {
@@ -540,6 +553,13 @@ h1 {
 
     .quick-actions {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .action-card {
+        border-radius: 14px;
+        padding: 10px;
+        flex-direction: column;
+        gap: 2px;
     }
 
     h1 {

@@ -26,14 +26,22 @@
 
         <main class="layout">
             <section class="assistant-stage reveal">
+<<<<<<< HEAD
+                <p class="kicker">वाणी • Voice-First Intelligence</p>
+                <h1><span class="headline-accent">✦</span>Ask once.<br>Vaani handles the rest.</h1>
+                <p class="lead">A premium voice workspace for Hindi and English queries. Speak or type one prompt and get instant, voice-ready answers.</p>
+=======
                 <p class="kicker">वाणी • आपकी आसान आवाज सहायक</p>
                 <h1>बोलिए.<br>मैं सुन रही हूँ.</h1>
                 <p class="lead">हिंदी या English में बोलिए. मैं मौसम, खबर, योजना और खेती की मदद करूँगी.</p>
+>>>>>>> 70c6b1c632948fc31b364d6d85b17c11028319d1
 
                 <div class="command-surface reveal">
                     <div class="help-text">
                         <p>मैं आपकी कैसे मदद करूं?</p>
                     </div>
+
+                    <p class="input-note">Press Enter to send fast • Use mic for hands-free mode</p>
 
                     <div class="voice-row">
                         <button id="mic-btn" class="mic-btn" title="Tap to Speak" aria-label="Start voice input">🎤</button>
@@ -41,26 +49,22 @@
                     </div>
                 </div>
 
-                <div class="quick-actions reveal">
+                <div class="quick-actions reveal" aria-label="Quick prompts">
                     <button class="action-card" onclick="sendQuickQuery('Weather')">
-                        <span class="action-icon">🌤️</span>
                         <span>Weather</span>
-                        <small>मौसम</small>
+                        <small>मौसम अपडेट</small>
                     </button>
                     <button class="action-card" onclick="sendQuickQuery('News')">
-                        <span class="action-icon">📰</span>
                         <span>News</span>
-                        <small>समाचार</small>
+                        <small>आज की खबरें</small>
                     </button>
                     <button class="action-card" onclick="sendQuickQuery('Schemes')">
-                        <span class="action-icon">💰</span>
                         <span>Schemes</span>
-                        <small>योजनाएं</small>
+                        <small>सरकारी योजनाएं</small>
                     </button>
                     <button class="action-card" onclick="sendQuickQuery('Emergency')">
-                        <span class="action-icon">🚨</span>
                         <span>Emergency</span>
-                        <small>आपातकाल</small>
+                        <small>तुरंत सहायता</small>
                     </button>
                 </div>
 
